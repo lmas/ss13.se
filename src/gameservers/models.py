@@ -4,7 +4,7 @@ class Server(models.Model):
     title = models.CharField(max_length=255)
     game_url = models.URLField()
     site_url = models.URLField(blank=True)
-    current_players = models.PositiveIntegerField(default=0)
+    current_players = models.PositiveIntegerField(default=0, editable=False)
 
     class Meta:
         ordering = ['-current_players', 'title']
