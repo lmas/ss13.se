@@ -94,7 +94,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         parser = ServerParser()
-        parser.url = './dump.html' # Use a local file instead when testing
         servers = parser.run()
 
         for data in servers:
