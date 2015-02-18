@@ -97,6 +97,7 @@ class Command(BaseCommand):
         servers = parser.run()
 
         for data in servers:
+            # TODO: do bulk insert instead!
             server, created = Server.objects.get_or_create(
                 title=data['title'],
                 game_url=data['game_url'],
