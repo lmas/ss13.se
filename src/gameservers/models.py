@@ -12,7 +12,7 @@ class Server(models.Model):
     def __str__(self):
         return self.title
 
-class Population(models.Model):
+class PopulationHistory(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     server = models.ForeignKey(Server)
     players = models.PositiveIntegerField()

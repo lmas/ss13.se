@@ -2,7 +2,7 @@
 
 from django.core.management.base import BaseCommand
 
-from gameservers.models import Server, Population
+from gameservers.models import Server, PopulationHistory
 
 import re
 import logging
@@ -104,7 +104,7 @@ class Command(BaseCommand):
                 )
             )
 
-            pop = Population.objects.create(
+            pop = PopulationHistory.objects.create(
                 server=server,
                 players=data['player_count'],
             )
