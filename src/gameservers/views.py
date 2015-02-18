@@ -11,7 +11,8 @@ class ServerDetailView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ServerDetailView, self).get_context_data(**kwargs)
+        server = context['server']
         # HACK: 24 hours for the last 3 days, might want to change this
-        context['population'] = Population.objects.all()[:3*24]
+        context['population'] = Population.objects.filter(server=server)[:3*24]
         return context
 
