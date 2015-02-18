@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+from django.core.management.base import BaseCommand
+
+from gameservers.models import Server, Population
+
 import re
 import logging
 
@@ -83,6 +87,26 @@ class ServerParser(object):
             player_count = player_count,
         )
         return server
+
+
+class Command(BaseCommand):
+    help = 'Update population stats for all ss13 servers.'
+
+    def handle(self, *args, **kwargs):
+        parser = ServerParser()
+        parser.url = './dump.html' # Use a local file instead when testing
+        servers = parser.run()
+
+        for data in servers:
+            server, created = Server.objects.get_or_create(
+                title=data['title'],
+                game_url=data['game_url'],
+                site_url=data['site_url'] or '',
+            )
+            pop = Population.objects.create(
+                server=server,
+                players=data['player_count'],
+            )
 
 
 if __name__ == '__main__':
