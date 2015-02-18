@@ -48,14 +48,20 @@ class ServerParser(object):
         soup_data = BeautifulSoup(raw_data)
         for server_data in soup_data.find_all('div', 'live_game_status'):
             server = self._parse_server_data(server_data)
-            servers.append(server)
+            if server:
+                servers.append(server)
 
         logging.info('Number of servers parsed: {}'.format(len(servers)))
         return servers
 
     def _parse_server_data(self, data):
         '''Parse the individual parts of each server.'''
-        title = data.find('b').text.splitlines()[0].strip()
+        try:
+            title = data.find('b').text.splitlines()[0].strip()
+        except AttributeError:
+            # HACK: I think this happends because the raw data was incomplete.
+            # No complete data, no server update.
+            return None
         game_url = data.find('span', 'smaller').text
 
         tmp = data.find('a')
