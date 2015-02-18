@@ -3,7 +3,7 @@ from django.db import models
 class Server(models.Model):
     title = models.CharField(max_length=255)
     game_url = models.URLField()
-    site_url = models.URLField()
+    site_url = models.URLField(blank=True)
 
     class Meta:
         ordering = ['-title']
