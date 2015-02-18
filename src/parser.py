@@ -54,7 +54,7 @@ class ServerParser(object):
 
     def _parse_server_data(self, data):
         '''Parse the individual parts of each server.'''
-        title = data.find('b').text.strip()
+        title = data.find('b').text.splitlines()[0].strip()
         game_url = data.find('span', 'smaller').text
 
         tmp = data.find('a')
