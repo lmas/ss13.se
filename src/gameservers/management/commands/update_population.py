@@ -100,6 +100,7 @@ class Command(BaseCommand):
                 defaults= dict(
                     game_url=data['game_url'],
                     site_url=data['site_url'] or '',
+                    current_players=data['player_count'],
                 )
             )
 

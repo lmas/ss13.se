@@ -4,9 +4,10 @@ class Server(models.Model):
     title = models.CharField(max_length=255)
     game_url = models.URLField()
     site_url = models.URLField(blank=True)
+    current_players = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ['title']
+        ordering = ['-current_players', 'title']
 
     def __str__(self):
         return self.title
