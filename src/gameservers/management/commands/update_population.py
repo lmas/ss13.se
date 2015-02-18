@@ -98,11 +98,14 @@ class Command(BaseCommand):
 
         for data in servers:
             # TODO: do bulk insert instead!
-            server, created = Server.objects.get_or_create(
+            server, created = Server.objects.update_or_create(
                 title=data['title'],
-                game_url=data['game_url'],
-                site_url=data['site_url'] or '',
+                defaults= dict(
+                    game_url=data['game_url'],
+                    site_url=data['site_url'] or '',
+                )
             )
+
             pop = Population.objects.create(
                 server=server,
                 players=data['player_count'],
