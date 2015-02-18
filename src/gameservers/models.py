@@ -6,7 +6,10 @@ class Server(models.Model):
     site_url = models.URLField(blank=True)
 
     class Meta:
-        ordering = ['-title']
+        ordering = ['title']
+
+    def __str__(self):
+        return self.title
 
 class Population(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -15,4 +18,7 @@ class Population(models.Model):
 
     class Meta:
         ordering = ['-timestamp', 'server']
+
+    def __str__(self):
+        return '{} {}'.format(self.timestamp, self.server.title)
 
