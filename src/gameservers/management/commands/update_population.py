@@ -15,10 +15,7 @@ URL = 'http://www.byond.com/games/exadv1/spacestation13'
 PLAYER_COUNT = re.compile('Logged in: (\d+) player')
 
 
-logging.basicConfig(
-    format = '%(asctime)s %(levelname)s %(message)s',
-    level = logging.INFO,
-)
+logger = logging.getLogger(__name__)
 
 
 class ServerParser(object):
