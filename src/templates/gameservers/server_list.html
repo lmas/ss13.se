@@ -1,0 +1,33 @@
+{% extends "base_site.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block content %}
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Players</th>
+                <th>Server</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for server in server_list %}
+                <tr>
+                    <th>{{server.current_players}}</th>
+                    <th>
+                        <a href="{% url 'gameservers:detail' pk=server.id slug=server %}">
+                            {{server}}
+                        </a>
+                    </th>
+                </tr>
+            {% empty %}
+                <tr>
+                    <th>?</th>
+                    <th>Sorry, no servers!</th>
+                <tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

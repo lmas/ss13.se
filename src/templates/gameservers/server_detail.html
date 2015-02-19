@@ -1,0 +1,68 @@
+{% extends "base_site.html" %}
+{% load staticfiles %}
+
+{% block title %}
+    {{server}}
+{% endblock %}
+
+{% block content %}
+    <h1>
+        {{server}}
+    </h1>
+
+    <a class="btn btn-default" href="{{server.game_url}}" rel="nofollow">Launch game</a>
+    {% if server.site_url %}
+        <a class="btn btn-default" href="{{server.site_url}}" rel="nofollow">Homepage</a>
+    {% else %}
+        <button class="btn btn-default">No homepage</button>
+    {% endif %}
+
+    <h2>Server population</h2>
+    <div id="chart"></div>
+    <div id="tooltip"></div>
+
+    <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.flot.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.flot.time.js' %}"></script>
+    <script type="text/javascript">
+        $(function() {
+            var series = [
+                {% for tmp in population %}
+                    [{{tmp.timestamp|date:'U'}} * 1000, {{tmp.players}}],
+                {% endfor %}
+            ];
+
+            var options = {
+                xaxis: {
+                    mode: "time",
+                    timezone: "UTC",
+                },
+                lines: {
+                    show: true,
+                    fill: true,
+                },
+                grid: {
+                    hoverable: true,
+                    borderWidth: 0,
+                },
+            };
+
+            $.plot("#chart", [series], options);
+
+            $("#chart").bind("plothover", function (event, pos, item) {
+                if (item) {
+                    var time = item.datapoint[0];
+                    var players = item.datapoint[1];
+                    var timestamp = new Date(time).toUTCString();
+                    $("#tooltip")
+                        .html(players + " players at " + timestamp)
+                        .css({top: item.pageY+5, left: item.pageX+5})
+                        .fadeIn(200);
+                } else {
+                    $("#tooltip").hide();
+                }
+            });
+        });
+</script>
+{% endblock %}
+
