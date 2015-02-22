@@ -35,7 +35,7 @@
             var options = {
                 xaxis: {
                     mode: "time",
-                    timezone: "UTC",
+                    timezone: "browser",
                 },
                 lines: {
                     show: true,
@@ -53,7 +53,7 @@
                 if (item) {
                     var time = item.datapoint[0];
                     var players = item.datapoint[1];
-                    var timestamp = new Date(time).toUTCString();
+                    var timestamp = new Date(time).toString();
                     $("#tooltip")
                         .html(players + " players at " + timestamp)
                         .css({top: item.pageY+5, left: item.pageX+5})
