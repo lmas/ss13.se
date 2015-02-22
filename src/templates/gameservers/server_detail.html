@@ -17,7 +17,14 @@
         <button class="btn btn-default">No homepage</button>
     {% endif %}
 
-    <h2>Server population</h2>
+    <h2>Server History</h2>
+    {% with population|first as status %}
+        <p>Last updated <span title="{{status.timestamp|date:'r'}} GMT">
+            {{status.timestamp|timesince}}
+        </span>ago.</p>
+        <p>Online players: {{status.players}}</p>
+    {% endwith %}
+
     <div id="chart"></div>
     <div id="tooltip"></div>
 
