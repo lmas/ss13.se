@@ -18,7 +18,7 @@ class PopulationHistory(models.Model):
     players = models.PositiveIntegerField()
 
     class Meta:
-        ordering = ['timestamp', 'server']
+        ordering = ['-timestamp', 'server']
 
     def __str__(self):
         return '{} {}'.format(self.timestamp, self.server.title)
