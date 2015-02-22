@@ -57,7 +57,7 @@ class ServerParser(object):
     def _parse_server_data(self, data):
         '''Parse the individual parts of each server.'''
         try:
-            title = data.find('b').text.splitlines()[0].strip()
+            title = data.find('b').get_text().splitlines()[0].strip()
         except AttributeError:
             # HACK: I think this happends because the raw data was incomplete.
             # No complete data, no server update.
