@@ -50,6 +50,13 @@ body {
     text-decoration: none;
 }
 
+#navbar .divider {
+    border-left: 1px #999 solid;
+    height: 20px;
+    position: relative;
+    top: 5px;
+}
+
 /* Page content ***************************************************************/
 #content {
     background-color: #fff;
