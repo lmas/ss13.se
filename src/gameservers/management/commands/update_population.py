@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-from django.core.management.base import BaseCommand
-
-from gameservers.models import Server, PopulationHistory
-
 import re
 import logging
+import time
+
+from django.core.management.base import BaseCommand
+
+from gameservers.models import Server, PlayerHistory
 
 import requests
 from bs4 import BeautifulSoup
@@ -98,6 +99,8 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         parser = ServerParser()
         servers = parser.run()
+        history = PlayerHistory()
+        now = time.time()
 
         for data in servers:
             # TODO: do bulk insert instead!
@@ -110,10 +113,9 @@ class Command(BaseCommand):
                 )
             )
 
-            pop = PopulationHistory.objects.create(
-                server=server,
-                players=data['player_count'],
-            )
+            # Update the player history
+            history.add_point(server, now, data['player_count'])
+            history.trim_points(server)
 
 
 if __name__ == '__main__':
