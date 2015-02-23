@@ -22,11 +22,12 @@ class Server(models.Model):
 
     @staticmethod
     def remove_old_servers():
+        '''Remove servers that hasn't been updated for over a week.'''
         now = timezone.now()
         for server in Server.objects.all():
             delta = now - server.last_updated
             if delta.days >= 7:
-                del server
+                server.delete()
 
 
 class PlayerHistory(object):
