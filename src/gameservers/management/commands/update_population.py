@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import re
-import logging
 import time
 
 from django.core.management.base import BaseCommand
@@ -16,9 +15,6 @@ URL = 'http://www.byond.com/games/exadv1/spacestation13'
 PLAYER_COUNT = re.compile('Logged in: (\d+) player')
 
 
-logger = logging.getLogger(__name__)
-
-
 class ServerParser(object):
     def __init__(self):
         self.url = URL
@@ -31,20 +27,17 @@ class ServerParser(object):
 
     def _download_data(self):
         '''Download raw data, either from local file or a web page.'''
-        logging.info('Downloading data from {} ...'.format(self.url))
         if self.url.startswith('http://') or self.url.startswith('https://'):
             raw_data = requests.get(self.url).text.strip()
         else:
             # HACK: In case of local testing or debugging, since requests can't
             # handle local files.
-            logging.debug('Opening local file...')
             with open(self.url, 'r') as f:
                 raw_data = f.read().strip()
         return raw_data
 
     def _parse_data(self, raw_data):
         '''Parse the raw data and run through all servers.'''
-        logging.info('Parsing raw data...')
         servers = []
         soup_data = BeautifulSoup(raw_data)
         for server_data in soup_data.find_all('div', 'live_game_status'):
@@ -52,7 +45,6 @@ class ServerParser(object):
             if server:
                 servers.append(server)
 
-        logging.info('Number of servers parsed: {}'.format(len(servers)))
         return servers
 
     def _parse_server_data(self, data):
@@ -98,6 +90,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         parser = ServerParser()
+        #parser.url = './dump.html' # Use a local file instead when testing
         servers = parser.run()
         history = PlayerHistory()
         now = time.time()
@@ -124,12 +117,4 @@ class Command(BaseCommand):
             # Update the player history
             history.add_point(server, now, data['player_count'])
             history.trim_points(server)
-
-
-if __name__ == '__main__':
-    parser = ServerParser()
-    parser.url = './dump.html' # Use a local file instead when testing
-    servers = parser.run()
-    for tmp in servers:
-        print '{}\nPlayers: {}\n'.format(tmp['title'], tmp['player_count'])
 
