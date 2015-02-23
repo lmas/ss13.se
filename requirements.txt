@@ -1,6 +1,6 @@
 
-requests
-beautifulsoup4
-
 django
 django-debug-toolbar
+requests
+beautifulsoup4
+redis
