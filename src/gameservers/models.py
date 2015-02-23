@@ -2,6 +2,7 @@
 import datetime
 
 from django.db import models
+from django.utils import timezone
 
 import redis
 
@@ -11,12 +12,22 @@ class Server(models.Model):
     game_url = models.URLField()
     site_url = models.URLField(blank=True)
     current_players = models.PositiveIntegerField(default=0, editable=False)
+    last_updated = models.DateTimeField(auto_now=True, default=timezone.now)
 
     class Meta:
         ordering = ['-current_players', 'title']
 
     def __str__(self):
         return self.title
+
+    @staticmethod
+    def remove_old_servers():
+        now = timezone.now()
+
+        for server in Server.objects.all():
+            delta = now - server.last_updated
+            if delta.days >= 7:
+                del server
 
 
 class PlayerHistory(object):

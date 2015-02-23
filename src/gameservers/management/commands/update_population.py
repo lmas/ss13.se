@@ -4,6 +4,7 @@ import re
 import time
 
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from gameservers.models import Server, PlayerHistory
 
@@ -93,7 +94,7 @@ class Command(BaseCommand):
         #parser.url = './dump.html' # Use a local file instead when testing
         servers = parser.run()
         history = PlayerHistory()
-        now = time.time()
+        now = time.mktime(timezone.now().timetuple())
         servers_handled = []
 
         for data in servers:
@@ -117,4 +118,6 @@ class Command(BaseCommand):
             # Update the player history
             history.add_point(server, now, data['player_count'])
             history.trim_points(server)
+
+        Server.remove_old_servers()
 
