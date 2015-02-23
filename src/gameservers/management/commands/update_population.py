@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 
 
 URL = 'http://www.byond.com/games/exadv1/spacestation13'
+# TODO: Better regexp that can't be spoofed by server names
 PLAYER_COUNT = re.compile('Logged in: (\d+) player')
 
 
