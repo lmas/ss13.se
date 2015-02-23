@@ -1,7 +1,8 @@
+
 from django.shortcuts import render
 from django.views import generic
 
-from .models import Server, PopulationHistory
+from .models import Server, PlayerHistory
 
 class ServerListView(generic.ListView):
     model = Server
@@ -12,7 +13,13 @@ class ServerDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(ServerDetailView, self).get_context_data(**kwargs)
         server = context['server']
-        # HACK: 24 hours for the last 7 days, might want to change this
-        context['population'] = PopulationHistory.objects.filter(server=server)[:7*24*4]
+
+        history = PlayerHistory()
+        points = history.get_points(server)
+        context['player_history'] = points
+
+        timestamp, players = points[0]
+        context['last_updated'] = timestamp
+        context['online_players'] = players
         return context
 

@@ -18,12 +18,10 @@
     {% endif %}
 
     <h2>Server History</h2>
-    {% with population|first as status %}
-        <p>Last updated <span title="{{status.timestamp|date:'r'}} GMT">
-            {{status.timestamp|timesince}}
-        </span>ago.</p>
-        <p>Online players: {{status.players}}</p>
-    {% endwith %}
+    <p>Last updated <span title="{{last_updated|date:'r'}} GMT">
+        {{last_updated|timesince}}
+    </span>ago.</p>
+    <p>Online players: {{online_players}}</p>
 
     <div id="chart"></div>
     <div id="tooltip"></div>
@@ -34,8 +32,9 @@
     <script type="text/javascript">
         $(function() {
             var series = [
-                {% for tmp in population %}
-                    [{{tmp.timestamp|date:'U'}} * 1000, {{tmp.players}}],
+                {% for timestamp, players in player_history %}
+                    {# convert timestamp to ms, because javascript... #}
+                    [{{timestamp|date:'U'}} * 1000, {{players}}],
                 {% endfor %}
             ];
 
