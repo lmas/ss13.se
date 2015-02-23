@@ -1,4 +1,10 @@
+
+import datetime
+
 from django.db import models
+
+import redis
+
 
 class Server(models.Model):
     title = models.CharField(max_length=255)
@@ -12,14 +18,29 @@ class Server(models.Model):
     def __str__(self):
         return self.title
 
-class PopulationHistory(models.Model):
-    timestamp = models.DateTimeField(auto_now_add=True)
-    server = models.ForeignKey(Server)
-    players = models.PositiveIntegerField()
 
-    class Meta:
-        ordering = ['-timestamp', 'server']
+class PlayerHistory(object):
+    def __init__(self, redis_settings=dict(host='localhost', port=6379, db=0)):
+        self.redis = redis.StrictRedis(**redis_settings)
 
-    def __str__(self):
-        return '{} {}'.format(self.timestamp, self.server.title)
+        # 2688 = 4 times per hour * 24 hours * 7 days * 4 weeks
+        self.max_points = 2688
+
+    def add_point(self, server, time, players):
+        '''Add a new point in the player history.'''
+        self.redis.lpush(server, '{},{}'.format(time, players))
+
+    def trim_points(self, server):
+        '''Trim away too old points in the player history.'''
+        self.redis.ltrim(server, 0, self.max_points)
+
+    def get_points(self, server):
+        '''Get a range of points from the player history.'''
+        # TODO: not memory efficient, turn into a generator instead?
+        points = []
+        for tmp in self.redis.lrange(server, 0, self.max_points):
+            time, players = tmp.split(',')
+            time, players = datetime.datetime.fromtimestamp(float(time)), int(players)
+            points.append((time, players))
+        return points
 
