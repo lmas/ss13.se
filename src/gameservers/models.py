@@ -9,7 +9,7 @@ import redis
 
 class Server(models.Model):
     title = models.CharField(max_length=255)
-    game_url = models.URLField()
+    game_url = models.CharField(max_length=255)
     site_url = models.URLField(blank=True)
     current_players = models.PositiveIntegerField(default=0, editable=False)
     last_updated = models.DateTimeField(auto_now=True, default=timezone.now)
