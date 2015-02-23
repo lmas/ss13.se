@@ -13,10 +13,6 @@ body {
     font-family: "Helvetica Neue", Helvetica, Arial,sans-serif;
 }
 
-.right {
-    float: right;
-}
-
 /* Header and navbar **********************************************************/
 #navbar {
     background-color: #333;
@@ -100,5 +96,27 @@ body {
 
 #bottom_footer a:hover {
     color: #444;
+}
+
+/* Utils **********************************************************************/
+.right {
+    float: right;
+}
+
+.tablesorter-head ::before {
+    font-family: "Glyphicons Halflings";
+    content: "−";
+    margin-right: 5px;
+    font-size: small;
+}
+
+.tablesorter-asc ::before {
+    font-family: "Glyphicons Halflings";
+    content: "";
+}
+
+.tablesorter-desc ::before {
+    font-family: "Glyphicons Halflings";
+    content: "";
 }
 
