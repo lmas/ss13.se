@@ -101,8 +101,16 @@ class Command(BaseCommand):
         servers = parser.run()
         history = PlayerHistory()
         now = time.time()
+        servers_handled = []
 
         for data in servers:
+            # Prevent empty servers with identical names to other, active servers
+            # from fucking with the history
+            if data['title'] in servers_handled:
+                continue
+            else:
+                servers_handled.append(data['title'])
+
             # TODO: do bulk insert instead!
             server, created = Server.objects.update_or_create(
                 title=data['title'],
