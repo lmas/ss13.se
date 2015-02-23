@@ -18,10 +18,10 @@
     {% endif %}
 
     <h2>Server History</h2>
-    <p>Last updated <span title="{{last_updated|date:'r'}} GMT">
-        {{last_updated|timesince}}
+    <p>Last updated <span title="{{server.last_updated|date:'r'}} GMT">
+        {{server.last_updated|timesince}}
     </span>ago.</p>
-    <p>Online players: {{online_players}}</p>
+    <p>Online players: {{server.current_players}}</p>
 
     <div id="chart"></div>
     <div id="tooltip"></div>

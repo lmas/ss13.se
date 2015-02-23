@@ -13,13 +13,8 @@ class ServerDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(ServerDetailView, self).get_context_data(**kwargs)
         server = context['server']
-
         history = PlayerHistory()
         points = history.get_points(server)
         context['player_history'] = points
-
-        timestamp, players = points[0]
-        context['last_updated'] = timestamp
-        context['online_players'] = players
         return context
 
