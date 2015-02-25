@@ -107,7 +107,7 @@ class Command(BaseCommand):
                 servers_handled.append(data['title'])
 
             # Keep the amount of data down in redis
-            history.trim_points(server)
+            history.trim_points(data['title'])
 
             # TODO: do bulk insert instead!
             server, created = Server.objects.update_or_create(
