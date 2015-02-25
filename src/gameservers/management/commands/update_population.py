@@ -106,6 +106,9 @@ class Command(BaseCommand):
             else:
                 servers_handled.append(data['title'])
 
+            # Keep the amount of data down in redis
+            history.trim_points(server)
+
             # TODO: do bulk insert instead!
             server, created = Server.objects.update_or_create(
                 title=data['title'],
@@ -118,7 +121,6 @@ class Command(BaseCommand):
 
             # Update the player history
             history.add_point(server, now, data['player_count'])
-            history.trim_points(server)
 
         Server.remove_old_servers()
 

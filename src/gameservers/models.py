@@ -42,8 +42,10 @@ class PlayerHistory(object):
         self.redis.lpush(server, '{},{}'.format(time, players))
 
     def trim_points(self, server):
-        '''Trim away too old points in the player history.'''
+        '''Trim away too old points and servers in the player history.'''
         self.redis.ltrim(server, 0, self.max_points)
+        # let the list expire after a week without updates
+        self.redis.expire(server, 604800)
 
     def get_points(self, server):
         '''Get a range of points from the player history.'''
