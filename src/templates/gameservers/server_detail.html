@@ -17,11 +17,35 @@
         <button class="btn btn-default">No homepage</button>
     {% endif %}
 
-    <h2>Server History</h2>
+    <h2>Player Population</h2>
+    <p>Currently online: {{server.current_players}} players</p>
     <p>Last updated <span title="{{server.last_updated|date:'r'}} GMT">
         {{server.last_updated|timesince}}
     </span>ago.</p>
-    <p>Online players: {{server.current_players}}</p>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Average</th>
+                <th>Min</th>
+                <th>Max</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>Daily</th>
+                <th>{{daily_average|floatformat}}</th>
+                <th>{{daily_min}}</th>
+                <th>{{daily_max}}</th>
+            </tr>
+            <tr>
+                <th>Total</th>
+                <th>{{total_average|floatformat}}</th>
+                <th>{{total_min}}</th>
+                <th>{{total_max}}</th>
+            </tr>
+    </table>
 
     <div id="chart"></div>
     <div id="tooltip"></div>
