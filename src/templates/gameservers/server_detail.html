@@ -26,7 +26,7 @@
     <table class="table table-hover">
         <thead>
             <tr>
-                <th></th>
+                <th>Time period</th>
                 <th>Average</th>
                 <th>Min</th>
                 <th>Max</th>
@@ -34,10 +34,16 @@
         </thead>
         <tbody>
             <tr>
-                <th>Daily</th>
+                <th>Last day</th>
                 <th>{{daily_average|floatformat}}</th>
                 <th>{{daily_min}}</th>
                 <th>{{daily_max}}</th>
+            </tr>
+            <tr>
+                <th>Last week</th>
+                <th>{{weekly_average|floatformat}}</th>
+                <th>{{weekly_min}}</th>
+                <th>{{weekly_max}}</th>
             </tr>
             <tr>
                 <th>Total</th>
@@ -49,15 +55,14 @@
 
     <div id="chart"></div>
     <div id="tooltip"></div>
-
     <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.flot.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.flot.time.js' %}"></script>
     <script type="text/javascript">
         $(function() {
             var series = [
+                {# convert timestamp to ms, because javascript... #}
                 {% for timestamp, players in player_history %}
-                    {# convert timestamp to ms, because javascript... #}
                     [{{timestamp|date:'U'}} * 1000, {{players}}],
                 {% endfor %}
             ];

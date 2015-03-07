@@ -24,6 +24,11 @@ class ServerDetailView(generic.DetailView):
         context['daily_min'] = min(tmp)
         context['daily_max'] = max(tmp)
 
+        tmp = [players for time, players in points[-96*7:]]
+        context['weekly_average'] = sum(tmp) / float(len(tmp))
+        context['weekly_min'] = min(tmp)
+        context['weekly_max'] = max(tmp)
+
         tmp = [players for time, players in points]
         context['total_average'] = sum(tmp) / float(len(tmp))
         context['total_min'] = min(tmp)
