@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
 import re
-import time
 
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 
-from gameservers.models import Server, PlayerHistory
+from gameservers.models import Server, ServerHistory
 
 import requests
 from bs4 import BeautifulSoup
@@ -94,9 +92,8 @@ class Command(BaseCommand):
         parser = ServerParser()
         #parser.url = './dump.html' # Use a local file instead when testing
         servers = parser.run()
-        history = PlayerHistory()
-        now = time.mktime(timezone.now().timetuple())
         servers_handled = []
+        new_items = []
 
         for data in servers:
             # Prevent empty servers with identical names to other, active servers
@@ -106,10 +103,6 @@ class Command(BaseCommand):
             else:
                 servers_handled.append(data['title'])
 
-            # Keep the amount of data down in redis
-            history.trim_points(data['title'])
-
-            # TODO: do bulk insert instead!
             server, created = Server.objects.update_or_create(
                 title=data['title'],
                 defaults= dict(
@@ -119,8 +112,9 @@ class Command(BaseCommand):
                 )
             )
 
-            # Update the player history
-            history.add_point(server, now, data['player_count'])
+            history = ServerHistory(server=server, players=data['player_count'])
+            new_items.append(history)
 
+        ServerHistory.objects.bulk_create(new_items)
         Server.remove_old_servers()
 
