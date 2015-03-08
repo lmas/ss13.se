@@ -44,6 +44,7 @@ class Server(models.Model):
 
     def weekday_averages(self):
         weekdays = []
+        history = self.get_history_stats(days=7)
         for i, day in enumerate(calendar.day_name):
             # HACK: do some number juggling to convert from calendar to django,
             # because SOMEONE didn't bother to follow THE FUCKING STANDARD
@@ -55,8 +56,8 @@ class Server(models.Model):
             # (sunday = 1, monday = 2 etc.)
             i += 2
             if i > 7: i = 1
-            tmp = ServerHistory.objects.filter(server=self, created__week_day=i)
-            avg = tmp.aggregate(models.Avg('players'))['players__avg']
+            tmp = history.filter(created__week_day=i)
+            avg = tmp.aggregate(models.Avg('players'))['players__avg'] or 0
             weekdays.append((day, int(avg)))
         return weekdays
 
