@@ -18,8 +18,11 @@
     {% endif %}
 
     <h2>Player Population</h2>
-    <p>Currently online: {{server.current_players}} players</p>
-    <p>Last updated <span title="{{server.last_updated|date:'r'}} GMT">
+    <p>Currently <span class="bold">
+        {{server.current_players}} players
+    </span>online.</p>
+
+    <p>Last updated <span class="bold" title="{{server.last_updated|date:'r'}} GMT">
         {{server.last_updated|timesince}}
     </span>ago.</p>
 

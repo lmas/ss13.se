@@ -103,6 +103,10 @@ body {
     float: right;
 }
 
+.bold {
+    font-weight: bold;
+}
+
 .tablesorter-head ::before {
     font-family: "Glyphicons Halflings";
     content: "−";
