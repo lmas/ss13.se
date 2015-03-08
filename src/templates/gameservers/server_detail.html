@@ -45,12 +45,6 @@
                 <th>{{weekly_min}}</th>
                 <th>{{weekly_max}}</th>
             </tr>
-            <tr>
-                <th>Total</th>
-                <th>{{total_average|floatformat}}</th>
-                <th>{{total_min}}</th>
-                <th>{{total_max}}</th>
-            </tr>
     </table>
 
     <div id="chart"></div>
@@ -62,8 +56,8 @@
         $(function() {
             var series = [
                 {# convert timestamp to ms, because javascript... #}
-                {% for timestamp, players in player_history %}
-                    [{{timestamp}} * 1000, {{players}}],
+                {% for item in weekly_history %}
+                    [{{item.created|date:'U'}} * 1000, {{item.players}}],
                 {% endfor %}
             ];
 
