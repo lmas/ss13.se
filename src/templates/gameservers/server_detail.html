@@ -56,22 +56,25 @@
             </tr>
     </table>
 
-    <h3>Players, last week</h3>
-    <div id="chart"></div>
+    <h3>Players last week</h3>
+    <div id="weekly_history"></div>
+    <h3>Average per day</h3>
+    <div id="weekday_averages"></div>
     <div id="tooltip"></div>
+
     <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.flot.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.flot.time.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.flot.categories.js' %}"></script>
     <script type="text/javascript">
         $(function() {
-            var series = [
+            var data = [
                 {# convert timestamp to ms, because javascript... #}
                 {% for item in weekly_history %}
                     [{{item.created|date:'U'}} * 1000, {{item.players}}],
                 {% endfor %}
             ];
-
-            var options = {
+            $.plot("#weekly_history", [data], {
                 xaxis: {
                     mode: "time",
                     timezone: "browser",
@@ -84,39 +87,14 @@
                     hoverable: true,
                     borderWidth: 0,
                 },
-            };
-
-            $.plot("#chart", [series], options);
-
-            $("#chart").bind("plothover", function (event, pos, item) {
-                if (item) {
-                    var time = item.datapoint[0];
-                    var players = item.datapoint[1];
-                    var timestamp = new Date(time).toString();
-                    $("#tooltip")
-                        .html(players + " players at " + timestamp)
-                        .css({top: item.pageY+5, left: item.pageX+5})
-                        .fadeIn(200);
-                } else {
-                    $("#tooltip").hide();
-                }
             });
-        });
-</script>
 
-
-    <h3>Players, average per day</h3>
-    <div id="weekday_averages"></div>
-    <script type="text/javascript" src="{% static 'js/jquery.flot.categories.js' %}"></script>
-    <script type="text/javascript">
-        $(function() {
-            var series = [
+            var data= [
                 {% for day, players in weekday_averages %}
                     ["{{day}}", {{players}}],
                 {% endfor %}
             ];
-
-            var options = {
+            $.plot("#weekday_averages", [data], {
                 xaxis: {
                     mode: "categories",
                 },
@@ -129,10 +107,21 @@
                     hoverable: true,
                     borderWidth: 0,
                 },
-            };
+            });
 
-            $.plot("#weekday_averages", [series], options);
-
+            $("#weekly_history").bind("plothover", function (event, pos, item) {
+                if (item) {
+                    var time = item.datapoint[0];
+                    var players = item.datapoint[1];
+                    var timestamp = new Date(time).toString();
+                    $("#tooltip")
+                        .html(players + " players at " + timestamp)
+                        .css({top: item.pageY+5, left: item.pageX+5})
+                        .fadeIn(200);
+                } else {
+                    $("#tooltip").hide();
+                }
+            });
             $("#weekday_averages").bind("plothover", function (event, pos, item) {
                 if (item) {
                     var players = item.datapoint[1];
@@ -145,6 +134,6 @@
                 }
             });
         });
-</script>
+    </script>
 {% endblock %}
 
