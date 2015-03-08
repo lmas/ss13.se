@@ -26,8 +26,12 @@ Todo
 
 - update_server_stats: player count regexp could be spoofed
 
+- server_details.html: make the graph tooltip more awesome
+
 
 **New features**
+
+- add avg player count on server list
 
 - add note about data source (byond page)
 
