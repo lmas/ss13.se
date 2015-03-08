@@ -24,5 +24,10 @@ class ServerDetailView(generic.DetailView):
         context['weekly_average'] = avg
         context['weekly_min'] = min
         context['weekly_max'] = max
+
+        avg, min, max = server.calc_player_stats(days=31)
+        context['monthly_average'] = avg
+        context['monthly_min'] = min
+        context['monthly_max'] = max
         return context
 
