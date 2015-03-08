@@ -63,7 +63,7 @@
             var series = [
                 {# convert timestamp to ms, because javascript... #}
                 {% for timestamp, players in player_history %}
-                    [{{timestamp|date:'U'}} * 1000, {{players}}],
+                    [{{timestamp}} * 1000, {{players}}],
                 {% endfor %}
             ];
 
