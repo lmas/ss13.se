@@ -1,9 +1,6 @@
 
-from datetime import timedelta
-
 from django.shortcuts import render
 from django.views import generic
-from django.utils import timezone
 
 from .models import Server, ServerHistory
 
@@ -16,24 +13,16 @@ class ServerDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(ServerDetailView, self).get_context_data(**kwargs)
         server = context['server']
+        context['weekly_history'] = server.get_history_stats(days=7)
 
-        weekly_history = ServerHistory.objects.filter(
-            server=server,
-            created__gte=timezone.now() - timedelta(days=7),
-        )
-        context['weekly_history'] = weekly_history
+        avg, min, max = server.calc_player_stats(days=1)
+        context['daily_average'] = avg
+        context['daily_min'] = min
+        context['daily_max'] = max
 
-        # Moving average for the last day
-        tmp = [tmp.players for tmp in ServerHistory.objects.filter(
-            server=server,
-            created__gte=timezone.now() - timedelta(days=1))]
-        context['daily_average'] = sum(tmp) / float(len(tmp))
-        context['daily_min'] = min(tmp)
-        context['daily_max'] = max(tmp)
-
-        tmp = [tmp.players for tmp in weekly_history]
-        context['weekly_average'] = sum(tmp) / float(len(tmp))
-        context['weekly_min'] = min(tmp)
-        context['weekly_max'] = max(tmp)
+        avg, min, max = server.calc_player_stats(days=7)
+        context['weekly_average'] = avg
+        context['weekly_min'] = min
+        context['weekly_max'] = max
         return context
 
