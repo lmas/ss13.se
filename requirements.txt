@@ -3,6 +3,5 @@ django
 django-debug-toolbar
 requests
 beautifulsoup4
-redis
 gunicorn
 fabric
