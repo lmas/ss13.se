@@ -56,6 +56,7 @@ class Server(models.Model):
             # (sunday = 1, monday = 2 etc.)
             i += 2
             if i > 7: i = 1
+            # NOTE: depends on pytz
             tmp = history.filter(created__week_day=i)
             avg = tmp.aggregate(models.Avg('players'))['players__avg'] or 0
             weekdays.append((day, int(avg)))
