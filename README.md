@@ -22,12 +22,12 @@ MIT License, see the LICENSE file.
 Todo
 --------------------------------------------------------------------------------
 
-##### Bugs
+**Bugs**
 
 - update_server_stats: player count regexp could be spoofed
 
 
-##### New features
+**New features**
 
 - add note about data source (byond page)
 
