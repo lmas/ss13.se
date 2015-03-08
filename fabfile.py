@@ -64,7 +64,8 @@ def migrate():
 
 @task
 def init_supervisor():
-    if exists('/etc/supervisor/conf.d/'):
+    if (exists('/etc/supervisor/conf.d/') and
+    not exists('/etc/supervisor/conf.d/{}.conf'.format(env.project))):
         sudo('cp {}/supervisor.conf /etc/supervisor/conf.d/{}.conf'.format(
             env.repo_path, env.project))
         sudo('supervisorctl reread')
