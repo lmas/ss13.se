@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from django.views import generic
 
-from .models import Server, ServerHistory
+from .models import Server
 
 class ServerListView(generic.ListView):
     model = Server
@@ -29,5 +29,7 @@ class ServerDetailView(generic.DetailView):
         context['monthly_average'] = stats['players__avg']
         context['monthly_min'] = stats['players__min']
         context['monthly_max'] = stats['players__max']
+
+        context['weekday_averages'] = server.weekday_averages()
         return context
 

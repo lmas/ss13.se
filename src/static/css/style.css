@@ -68,6 +68,11 @@ body {
     height:200px;
 }
 
+#weekday_averages {
+    width:800px;
+    height:200px;
+}
+
 #tooltip {
     position: absolute;
     display: none;

@@ -1,5 +1,6 @@
 
 from datetime import timedelta
+import calendar
 
 from django.db import models
 from django.utils import timezone
@@ -41,6 +42,23 @@ class Server(models.Model):
             models.Max('players'),
         )
 
+    def weekday_averages(self):
+        weekdays = []
+        for i, day in enumerate(calendar.day_name):
+            # HACK: do some number juggling to convert from calendar to django,
+            # because SOMEONE didn't bother to follow THE FUCKING STANDARD
+            #
+            # calendar is zero indexed, first day of week defaults to monday
+            # (monday = 0, tuesday = 1 etc.)
+            #
+            # django isn't zero indexed, first day of week defaults to sunday
+            # (sunday = 1, monday = 2 etc.)
+            i += 2
+            if i > 7: i = 1
+            tmp = ServerHistory.objects.filter(server=self, created__week_day=i)
+            avg = tmp.aggregate(models.Avg('players'))['players__avg']
+            weekdays.append((day, int(avg)))
+        return weekdays
 
 class ServerHistory(models.Model):
     server = models.ForeignKey(Server)
