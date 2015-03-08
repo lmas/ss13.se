@@ -1,7 +1,7 @@
-Space Station 13 HUB
+Space Station 13 Hub
 ================================================================================
 
-A site dedicated to SS13 and possibly a better replacement for the default
+A server hub dedicated to SS13 and possibly a better replacement for the default
 server page at http://www.byond.com/games/exadv1/spacestation13.
 
 Features
