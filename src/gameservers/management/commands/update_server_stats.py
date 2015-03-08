@@ -86,7 +86,7 @@ class ServerParser(object):
 
 
 class Command(BaseCommand):
-    help = 'Update population stats for all ss13 servers.'
+    help = 'Update history stats for all ss13 servers.'
 
     def handle(self, *args, **kwargs):
         parser = ServerParser()
