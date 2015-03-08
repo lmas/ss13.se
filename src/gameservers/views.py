@@ -15,19 +15,19 @@ class ServerDetailView(generic.DetailView):
         server = context['server']
         context['weekly_history'] = server.get_history_stats(days=7)
 
-        avg, min, max = server.calc_player_stats(days=1)
-        context['daily_average'] = avg
-        context['daily_min'] = min
-        context['daily_max'] = max
+        stats = server.calc_player_stats(days=1)
+        context['daily_average'] = stats['players__avg']
+        context['daily_min'] = stats['players__min']
+        context['daily_max'] = stats['players__max']
 
-        avg, min, max = server.calc_player_stats(days=7)
-        context['weekly_average'] = avg
-        context['weekly_min'] = min
-        context['weekly_max'] = max
+        stats = server.calc_player_stats(days=7)
+        context['weekly_average'] = stats['players__avg']
+        context['weekly_min'] = stats['players__min']
+        context['weekly_max'] = stats['players__max']
 
-        avg, min, max = server.calc_player_stats(days=31)
-        context['monthly_average'] = avg
-        context['monthly_min'] = min
-        context['monthly_max'] = max
+        stats = server.calc_player_stats(days=31)
+        context['monthly_average'] = stats['players__avg']
+        context['monthly_min'] = stats['players__min']
+        context['monthly_max'] = stats['players__max']
         return context
 

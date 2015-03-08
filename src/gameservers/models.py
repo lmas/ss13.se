@@ -35,9 +35,11 @@ class Server(models.Model):
 
     def calc_player_stats(self, days=7):
         history = self.get_history_stats(days=days)
-        stats = [tmp.players for tmp in history]
-        average = sum(stats) / float(len(stats)) # Moving average
-        return average, min(stats), max(stats)
+        return history.aggregate(
+            models.Avg('players'),
+            models.Min('players'),
+            models.Max('players'),
+        )
 
 
 class ServerHistory(models.Model):
