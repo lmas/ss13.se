@@ -62,7 +62,7 @@ class Server(models.Model):
             models.Max('players'),
         )
         return (
-            int(stats['players__avg'] or 0),
+            int(round(stats['players__avg'] or 0, 0)),
             stats['players__min'] or 0,
             stats['players__max'] or 0,
         )
@@ -74,7 +74,7 @@ class Server(models.Model):
         for day in range(1, 8):
             tmp = history.filter(created__week_day=day)
             avg = tmp.aggregate(models.Avg('players'))['players__avg'] or 0
-            weekdays.append(int(avg))
+            weekdays.append(int(round(avg, 0)))
         # HACK: Since django's __week_day starts on a sunday (amurican suckers)
         # we have to move sunday (at the start) to the end of the list
         weekdays.insert(len(weekdays), weekdays.pop(0))
