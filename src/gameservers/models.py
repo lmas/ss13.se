@@ -10,11 +10,20 @@ class Server(models.Model):
     title = models.CharField(max_length=255)
     game_url = models.CharField(max_length=255)
     site_url = models.URLField(blank=True)
-    current_players = models.PositiveIntegerField(default=0, editable=False)
+
     last_updated = models.DateTimeField(auto_now=True, default=timezone.now)
+    players_current = models.PositiveIntegerField(default=0, editable=False)
+    players_avg = models.PositiveIntegerField(default=0, editable=False)
+    players_min = models.PositiveIntegerField(default=0, editable=False)
+    players_max = models.PositiveIntegerField(default=0, editable=False)
+    averages_for_weekdays = models.CommaSeparatedIntegerField(
+        max_length=50,
+        editable=False,
+        default='',
+    )
 
     class Meta:
-        ordering = ['-current_players', 'title']
+        ordering = ['-players_current', 'title']
 
     def __str__(self):
         return self.title
@@ -28,23 +37,28 @@ class Server(models.Model):
             if delta.days >= 7:
                 server.delete()
 
-    def get_history_stats(self, days=7):
+    def get_stats_history(self, days=7):
         return ServerHistory.objects.filter(
             server=self,
             created__gte=timezone.now() - timedelta(days=days)
         )
 
-    def calc_player_stats(self, days=7):
-        history = self.get_history_stats(days=days)
-        return history.aggregate(
+    def measure_players(self, days=7):
+        history = self.get_stats_history(days=days)
+        stats = history.aggregate(
             models.Avg('players'),
             models.Min('players'),
             models.Max('players'),
         )
+        return (
+            int(stats['players__avg'] or 0),
+            stats['players__min'] or 0,
+            stats['players__max'] or 0,
+        )
 
-    def weekday_averages(self):
+    def measure_weekdays(self, days=7):
         weekdays = []
-        history = self.get_history_stats(days=7)
+        history = self.get_stats_history(days=days)
         for i, day in enumerate(calendar.day_name):
             # HACK: do some number juggling to convert from calendar to django,
             # because SOMEONE didn't bother to follow THE FUCKING STANDARD
@@ -62,6 +76,14 @@ class Server(models.Model):
             weekdays.append((day, int(avg)))
         return weekdays
 
+    def update_stats(self, player_count=0):
+        self.players_current = player_count
+
+        tmp = self.measure_players(days=31)
+        self.players_avg, self.players_min, self.players_max = tmp
+
+        tmp = self.measure_weekdays()
+        self.averages_for_weekdays = ','.join([str(i) for day, i in tmp])
 
 class ServerHistory(models.Model):
     server = models.ForeignKey(Server)
