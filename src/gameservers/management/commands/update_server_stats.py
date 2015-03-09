@@ -103,17 +103,22 @@ class Command(BaseCommand):
             else:
                 servers_handled.append(data['title'])
 
+            # Grab the correct server, making sure it has updated links
             server, created = Server.objects.update_or_create(
                 title=data['title'],
                 defaults= dict(
                     game_url=data['game_url'],
                     site_url=data['site_url'] or '',
-                    current_players=data['player_count'],
                 )
             )
 
+            # Create a new record in the history
             history = ServerHistory(server=server, players=data['player_count'])
             new_items.append(history)
+
+            # Update "live stats"
+            server.update_stats(data['player_count'])
+            server.save()
 
         ServerHistory.objects.bulk_create(new_items)
         Server.remove_old_servers()
