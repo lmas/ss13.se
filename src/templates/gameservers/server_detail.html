@@ -78,7 +78,7 @@
             });
 
             var data= [
-                {% for day, players in weekday_averages %}
+                {% for day, players in averages_for_weekdays %}
                     ["{{day}}", {{players}}],
                 {% endfor %}
             ];

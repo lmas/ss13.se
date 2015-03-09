@@ -1,6 +1,7 @@
 
 from datetime import timedelta
 import calendar
+from ast import literal_eval
 
 from django.db import models
 from django.utils import timezone
@@ -84,6 +85,10 @@ class Server(models.Model):
 
         tmp = self.measure_weekdays()
         self.averages_for_weekdays = ','.join([str(i) for day, i in tmp])
+
+    def get_averages_for_weekdays(self):
+        tmp = literal_eval(self.averages_for_weekdays)
+        return zip(calendar.day_name, tmp)
 
 class ServerHistory(models.Model):
     server = models.ForeignKey(Server)
