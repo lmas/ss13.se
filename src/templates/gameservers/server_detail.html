@@ -6,9 +6,7 @@
 {% endblock %}
 
 {% block content %}
-    <h1>
-        {{server}}
-    </h1>
+    <h1>{{server}}</h1>
 
     <a class="btn btn-default" href="{{server.game_url}}" rel="nofollow">Launch game</a>
     {% if server.site_url %}
@@ -17,42 +15,32 @@
         <button class="btn btn-default">No homepage</button>
     {% endif %}
 
-    <h2>Player Population</h2>
-    <p>Currently <span class="bold">
-        {{server.current_players}} players
-    </span>online.</p>
-
+    <h3>Players</h3>
     <p>Last updated <span class="bold" title="{{server.last_updated|date:'r'}} GMT">
         {{server.last_updated|timesince}}
     </span>ago.</p>
 
     <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Time period</th>
-                <th>Average</th>
-                <th>Min</th>
-                <th>Max</th>
-            </tr>
-        </thead>
         <tbody>
-            <tr>
-                <th>Last day</th>
-                <th>{{daily_average|floatformat}}</th>
-                <th>{{daily_min}}</th>
-                <th>{{daily_max}}</th>
+        {% if server.players_current > 0 %}
+            <tr class="success">
+        {% else %}
+            <tr class="danger">
+        {% endif %}
+                <th>Current</th>
+                <th>{{server.players_current}}</th>
             </tr>
             <tr>
-                <th>Last week</th>
-                <th>{{weekly_average|floatformat}}</th>
-                <th>{{weekly_min}}</th>
-                <th>{{weekly_max}}</th>
+                <th>Average</th>
+                <th>{{server.players_avg}}</th>
             </tr>
             <tr>
-                <th>Last month</th>
-                <th>{{monthly_average|floatformat}}</th>
-                <th>{{monthly_min}}</th>
-                <th>{{monthly_max}}</th>
+                <th>Min</th>
+                <th>{{server.players_min}}</th>
+            </tr>
+            <tr>
+                <th>Max</th>
+                <th>{{server.players_max}}</th>
             </tr>
     </table>
 

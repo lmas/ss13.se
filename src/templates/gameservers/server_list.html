@@ -16,7 +16,7 @@
         <tbody>
             {% for server in server_list %}
                 <tr>
-                    <th>{{server.current_players}}</th>
+                    <th>{{server.players_current}}</th>
                     <th>
                         <a href="{% url 'gameservers:detail' pk=server.id slug=server %}">
                             {{server}}
