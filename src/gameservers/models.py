@@ -68,19 +68,16 @@ class Server(models.Model):
         )
 
     def measure_weekdays(self, days=7):
-        weekdays = []
         history = self.get_stats_history(days=days)
-        for i, day in enumerate(DAY_NAMES):
-            # HACK: Fuck django for defaulting the start of a week to sunday...
-            # Oh, and it's not even zero indexed like the rest of the python
-            # community! So much fun with number juggling...
-            i += 2
-            if i > 7: i = 1
-            # NOTE: using __week_day is dependant on pytz
-            tmp = history.filter(created__week_day=i)
+        weekdays = []
+        # Why can't it be zero indexed like the rest of the fucking community...
+        for day in range(1, 8):
+            tmp = history.filter(created__week_day=day)
             avg = tmp.aggregate(models.Avg('players'))['players__avg'] or 0
-            weekdays.append((day, int(avg)))
-
+            weekdays.append(int(avg))
+        # HACK: Since django's __week_day starts on a sunday (amurican suckers)
+        # we have to move sunday (at the start) to the end of the list
+        weekdays.insert(len(weekdays), weekdays.pop(0))
         return weekdays
 
     def update_stats(self, player_count=0):
@@ -90,7 +87,7 @@ class Server(models.Model):
         self.players_avg, self.players_min, self.players_max = tmp
 
         tmp = self.measure_weekdays()
-        self.averages_for_weekdays = ','.join([str(i) for day, i in tmp])
+        self.averages_for_weekdays = ','.join([str(i) for i in tmp])
 
     def get_averages_for_weekdays(self):
         tmp = literal_eval(self.averages_for_weekdays)
