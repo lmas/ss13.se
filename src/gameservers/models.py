@@ -1,10 +1,20 @@
 
 from datetime import timedelta
-import calendar
 from ast import literal_eval
 
 from django.db import models
 from django.utils import timezone
+
+
+DAY_NAMES = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+]
 
 
 class Server(models.Model):
@@ -60,21 +70,17 @@ class Server(models.Model):
     def measure_weekdays(self, days=7):
         weekdays = []
         history = self.get_stats_history(days=days)
-        for i, day in enumerate(calendar.day_name):
-            # HACK: do some number juggling to convert from calendar to django,
-            # because SOMEONE didn't bother to follow THE FUCKING STANDARD
-            #
-            # calendar is zero indexed, first day of week defaults to monday
-            # (monday = 0, tuesday = 1 etc.)
-            #
-            # django isn't zero indexed, first day of week defaults to sunday
-            # (sunday = 1, monday = 2 etc.)
+        for i, day in enumerate(DAY_NAMES):
+            # HACK: Fuck django for defaulting the start of a week to sunday...
+            # Oh, and it's not even zero indexed like the rest of the python
+            # community! So much fun with number juggling...
             i += 2
             if i > 7: i = 1
             # NOTE: using __week_day is dependant on pytz
             tmp = history.filter(created__week_day=i)
             avg = tmp.aggregate(models.Avg('players'))['players__avg'] or 0
             weekdays.append((day, int(avg)))
+
         return weekdays
 
     def update_stats(self, player_count=0):
@@ -88,7 +94,7 @@ class Server(models.Model):
 
     def get_averages_for_weekdays(self):
         tmp = literal_eval(self.averages_for_weekdays)
-        return zip(calendar.day_name, tmp)
+        return zip(DAY_NAMES, tmp)
 
 class ServerHistory(models.Model):
     server = models.ForeignKey(Server)
