@@ -13,11 +13,9 @@ Features
 
 - Player count stats and graphs.
 
-
 License
 --------------------------------------------------------------------------------
 MIT License, see the LICENSE file.
-
 
 Todo
 --------------------------------------------------------------------------------
@@ -31,12 +29,6 @@ Todo
 
 **New features**
 
-- add avg player count on server list
-
-- add note about data source (byond page)
-
-- update copyright
-
 - more pop. history graphs, for current day/week/month
 
 - count page visits and show graphs?
@@ -45,4 +37,3 @@ Todo
 
 - logo?
 
-- users? so they can manage their own server (skip registration, keep it manuall for now)
