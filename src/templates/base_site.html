@@ -32,13 +32,17 @@
 
         <footer id="bottom_footer">
             <p>
-            {% comment %}
-                TODO: not sure about the copyright stuff when fetching data from
-                the ss13 game page at:
-                http://www.byond.com/games/exadv1/spacestation13
-            {% endcomment %}
-                Copyright © {% now 'Y' %}
-                A. Svensson
+            {# TODO: not sure about the copyright stuff when fetching ext. data #}
+                <span class="left">
+                    Copyright © {% now 'Y' %}
+                    A. Svensson
+                </span>
+
+                Using raw data from
+                <a href="http://www.byond.com/games/exadv1/spacestation13">
+                    Byond.
+                </a>
+
                 <span class="right">
                     Source code at
                     <a href="https://github.com/lmas/ss13_hub">Github</a>.
