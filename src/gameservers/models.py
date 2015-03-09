@@ -86,7 +86,7 @@ class Server(models.Model):
         tmp = self.measure_players(days=31)
         self.players_avg, self.players_min, self.players_max = tmp
 
-        tmp = self.measure_weekdays()
+        tmp = self.measure_weekdays(days=31)
         self.averages_for_weekdays = ','.join([str(i) for i in tmp])
 
     def get_averages_for_weekdays(self):
