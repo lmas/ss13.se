@@ -16,35 +16,35 @@
     {% endif %}
 
     <h3>Players</h3>
-    <p>Last updated <span class="bold" title="{{server.last_updated|date:'r'}} GMT">
-        {{server.last_updated|timesince}}
-    </span>ago.</p>
-
-    <table class="table table-hover">
-        <tbody>
-        {% if server.players_current > 0 %}
-            <tr class="success">
-        {% else %}
-            <tr class="danger">
-        {% endif %}
-                <th>Current</th>
-                <th>{{server.players_current}}</th>
-            </tr>
+    <table id="player_stats" class="table table-hover">
+        <thead>
             <tr>
+                <th>Currently online</th>
                 <th>Average</th>
-                <th>{{server.players_avg}}</th>
-            </tr>
-            <tr>
                 <th>Min</th>
-                <th>{{server.players_min}}</th>
-            </tr>
-            <tr>
                 <th>Max</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            {% if server.players_current > 0 %}
+                <th class="success">
+            {% else %}
+                <th class="danger">
+            {% endif %}
+                    {{server.players_current}}
+                </th>
+                <th>{{server.players_avg}}</th>
+                <th>{{server.players_min}}</th>
                 <th>{{server.players_max}}</th>
             </tr>
     </table>
 
-    <h3>Players last week</h3>
+    <p>Last updated <span class="bold" title="{{server.last_updated|date:'r'}} GMT">
+        {{server.last_updated|timesince}}
+    </span>ago.</p>
+
+    <h3>Weekly history</h3>
     <div id="weekly_history"></div>
     <h3>Average per day</h3>
     <div id="weekday_averages"></div>
