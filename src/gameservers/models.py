@@ -90,7 +90,10 @@ class Server(models.Model):
         self.averages_for_weekdays = ','.join([str(i) for i in tmp])
 
     def get_averages_for_weekdays(self):
-        tmp = literal_eval(self.averages_for_weekdays)
+        try:
+            tmp = literal_eval(self.averages_for_weekdays)
+        except SyntaxError:
+            tmp = [0,0,0,0,0,0,0]
         return zip(DAY_NAMES, tmp)
 
 class ServerHistory(models.Model):
