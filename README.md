@@ -26,6 +26,7 @@ Todo
 
 - server_details.html: make the graph tooltip more awesome
 
+- server_details.html: use same format for the verbose timestamps
 
 **New features**
 
