@@ -3,6 +3,7 @@
 import re
 
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from gameservers.models import Server, ServerHistory
 
@@ -88,12 +89,23 @@ class ServerParser(object):
 class Command(BaseCommand):
     help = 'Update history stats for all ss13 servers.'
 
+    def _update_stats(self, server, players, time):
+        # Create a new record in the history
+        history = ServerHistory(server=server, players=players)
+
+        # Update "live stats"
+        server.update_stats(players, time=time)
+        server.save()
+
+        return history
+
     def handle(self, *args, **kwargs):
         parser = ServerParser()
         #parser.url = './dump.html' # Use a local file instead when testing
         servers = parser.run()
         servers_handled = []
         new_items = []
+        now = timezone.now()
 
         for data in servers:
             # Prevent empty servers with identical names to other, active servers
@@ -112,13 +124,13 @@ class Command(BaseCommand):
                 )
             )
 
-            # Create a new record in the history
-            history = ServerHistory(server=server, players=data['player_count'])
-            new_items.append(history)
+            tmp = self._update_stats(server, data['player_count'], now)
+            new_items.append(tmp)
 
-            # Update "live stats"
-            server.update_stats(data['player_count'])
-            server.save()
+        # Make sure to update servers not available on the page.
+        for server in Server.objects.exclude(last_updated__exact=now):
+            tmp = self._update_stats(server, 0, None)
+            new_items.append(tmp)
 
         ServerHistory.objects.bulk_create(new_items)
         Server.remove_old_servers()

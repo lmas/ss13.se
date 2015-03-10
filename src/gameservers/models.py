@@ -22,7 +22,7 @@ class Server(models.Model):
     game_url = models.CharField(max_length=255)
     site_url = models.URLField(blank=True)
 
-    last_updated = models.DateTimeField(auto_now=True, default=timezone.now)
+    last_updated = models.DateTimeField(default=timezone.now, editable=False)
     players_current = models.PositiveIntegerField(default=0, editable=False)
     players_avg = models.PositiveIntegerField(default=0, editable=False)
     players_min = models.PositiveIntegerField(default=0, editable=False)
@@ -80,7 +80,11 @@ class Server(models.Model):
         weekdays.insert(len(weekdays), weekdays.pop(0))
         return weekdays
 
-    def update_stats(self, player_count=0):
+    def update_stats(self, player_count=0, time=None):
+        # TODO: default to setting current time
+        if time:
+            self.last_updated = time
+
         self.players_current = player_count
 
         tmp = self.measure_players(days=31)
