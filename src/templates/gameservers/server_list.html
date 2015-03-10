@@ -1,5 +1,6 @@
 {% extends "base_site.html" %}
 {% load staticfiles %}
+{% load server_utils %}
 
 {% block title %}
     Index
@@ -15,7 +16,15 @@
         </thead>
         <tbody>
             {% for server in server_list %}
+                {% with delta_hours=server.last_updated|hours_since_now %}
+                    {% if delta_hours > 24 %}
+                <tr class="danger">
+                    {% elif delta_hours >= 1 %}
+                <tr class="warning">
+                    {% else %}
                 <tr>
+                    {% endif %}
+                {% endwith %}
                     <th>{{server.players_current}}</th>
                     <th>
                         <a href="{% url 'gameservers:detail' pk=server.id slug=server %}">
