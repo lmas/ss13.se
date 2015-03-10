@@ -1,5 +1,6 @@
 {% extends "base_site.html" %}
 {% load staticfiles %}
+{% load server_utils %}
 
 {% block title %}
     {{server}}
@@ -26,14 +27,16 @@
             </tr>
         </thead>
         <tbody>
+            {% with delta_hours=server.last_updated|hours_since_now %}
+                {% if delta_hours > 24 %}
+            <tr class="danger">
+                {% elif delta_hours >= 1 %}
+            <tr class="warning">
+                {% else %}
             <tr>
-            {% if server.players_current > 0 %}
-                <th class="success">
-            {% else %}
-                <th class="danger">
-            {% endif %}
-                    {{server.players_current}}
-                </th>
+                {% endif %}
+            {% endwith %}
+                <th>{{server.players_current}}</th>
                 <th>{{server.players_avg}}</th>
                 <th>{{server.players_min}}</th>
                 <th>{{server.players_max}}</th>
