@@ -13,7 +13,7 @@ class ServerDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(ServerDetailView, self).get_context_data(**kwargs)
         server = context['server']
-        context['weekly_history'] = server.get_stats_history(days=8)
+        context['weekly_history'] = server.get_stats_history(days=7.5)
         context['averages_for_weekdays'] = server.get_averages_for_weekdays()
         return context
 
