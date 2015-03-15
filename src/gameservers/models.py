@@ -34,7 +34,7 @@ class Server(models.Model):
     )
 
     class Meta:
-        ordering = ['-players_current', 'title']
+        ordering = ['-players_current', '-last_updated', 'title']
 
     def __str__(self):
         return self.title
