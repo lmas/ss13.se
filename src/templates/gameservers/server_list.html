@@ -21,17 +21,17 @@
                     {% if delta_hours > 24 %}
                 <tr class="danger">
                     <th>
-                        <span title="Offline: not seen since the last day." class="glyphicon glyphicon-remove-sign"></span>
+                        <span title="Offline: was not seen during the last week." class="glyphicon glyphicon-remove-sign"></span>
                     </th>
                     {% elif delta_hours >= 1 %}
                 <tr class="warning">
                     <th>
-                        <span title="Unknown: not seen since the last hour." class="glyphicon glyphicon-question-sign"></span>
+                        <span title="Unknown: was not seen during the last day." class="glyphicon glyphicon-question-sign"></span>
                     </th>
                     {% else %}
                 <tr>
                     <th>
-                        <span title="Online" class="glyphicon glyphicon-ok-sign"></span>
+                        <span title="Online: was seen during the last hour." class="glyphicon glyphicon-ok-sign"></span>
                     </th>
                     {% endif %}
                 {% endwith %}

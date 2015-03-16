@@ -20,13 +20,13 @@
     {% with delta_hours=server.last_updated|hours_since_now %}
         {% if delta_hours > 24 %}
     <p id="server_status" class="status_offline">
-        <span title="Offline: not seen since the last day." class="glyphicon glyphicon-remove-sign"></span>
+        <span title="Offline: was not seen during the last week." class="glyphicon glyphicon-remove-sign"></span>
         {% elif delta_hours >= 1 %}
     <p id="server_status" class="status_unknown">
-        <span title="Unknown: not seen since the last hour." class="glyphicon glyphicon-question-sign"></span>
+        <span title="Unknown: was not seen during the last day." class="glyphicon glyphicon-question-sign"></span>
         {% else %}
     <p id="server_status" class="status_online">
-        <span title="Online" class="glyphicon glyphicon-ok-sign"></span>
+        <span title="Online: was seen during the last hour." class="glyphicon glyphicon-ok-sign"></span>
         {% endif %}
     {% endwith %}
         Last seen <span class="bold" title="{{server.last_updated|date:'r'}} GMT">
