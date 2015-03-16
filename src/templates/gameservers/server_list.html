@@ -10,6 +10,7 @@
     <table id="servers" class="table table-hover tablesorter">
         <thead>
             <tr>
+                <th><span></span></th>
                 <th><span>Players</span></th>
                 <th><span>Server</span></th>
             </tr>
@@ -19,10 +20,19 @@
                 {% with delta_hours=server.last_updated|hours_since_now %}
                     {% if delta_hours > 24 %}
                 <tr class="danger">
+                    <th>
+                        <span title="Offline: not seen since the last day." class="glyphicon glyphicon-remove-sign"></span>
+                    </th>
                     {% elif delta_hours >= 1 %}
                 <tr class="warning">
+                    <th>
+                        <span title="Unknown: not seen since the last hour." class="glyphicon glyphicon-question-sign"></span>
+                    </th>
                     {% else %}
                 <tr>
+                    <th>
+                        <span title="Online" class="glyphicon glyphicon-ok-sign"></span>
+                    </th>
                     {% endif %}
                 {% endwith %}
                     <th>{{server.players_current}}</th>
@@ -49,6 +59,11 @@
                 cssAsc: 'tablesorter-asc',
                 cssDesc: 'tablesorter-desc',
                 cssHeader: 'tablesorter-head',
+                headers: {
+                    0: {
+                        sorter: false, // Don't sort the status column
+                    },
+                },
             };
             $("#servers").tablesorter(settings);
         });
