@@ -63,6 +63,21 @@ body {
     padding-bottom: 40px;
 }
 
+#server_status {
+    padding: 8px;
+}
+
+.status_online {
+}
+
+.status_unknown {
+    background-color: #FCF8E3;
+}
+
+.status_offline {
+    background-color: #F2DEDE;
+}
+
 #player_stats th{
     width: 25%;
 }
