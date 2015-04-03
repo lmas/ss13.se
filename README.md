@@ -30,6 +30,8 @@ Todo
 
 **New features**
 
+- be able to add in private servers and poll their player stats somehow
+
 - more pop. history graphs, for current day/week/month
 
 - count page visits and show graphs?
