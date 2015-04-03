@@ -51,19 +51,19 @@ class ServerParser(object):
     def _parse_server_data(self, data):
         '''Parse the individual parts of each server.'''
         try:
-            title = data.find('b').get_text().splitlines()[0].strip()
+            title = data.find('b').get_text().splitlines()[0].strip().encode('utf-8')
         except AttributeError:
             # HACK: I think this happends because the raw data was incomplete.
             # No complete data, no server update.
             return None
-        game_url = data.find('span', 'smaller').text
+        game_url = data.find('span', 'smaller').text.encode('utf-8')
 
         tmp = data.find('a')
         site_url = None
         # Default means the server hasn't set a custom site url
         if tmp and not tmp.text == 'Default':
             try:
-                site_url = tmp['href']
+                site_url = tmp['href'].encode('utf-8')
                 # Handle some funky servers...
                 if site_url == 'http://':
                     site_url = ''
