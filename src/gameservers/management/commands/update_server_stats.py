@@ -92,6 +92,8 @@ import struct
 
 
 def poll_ss13_server(host, port, timeout=10):
+    # Thanks to /u/headswe for showing how to poll servers.
+    # Source: http://www.reddit.com/r/SS13/comments/31b5im/a_bunch_of_graphs_for_all_servers/cq11nld
     print 'polling:', host, port
     cmd = '?players'
     query = '\x00\x83{0}\x00\x00\x00\x00\x00{1}\x00'.format(
