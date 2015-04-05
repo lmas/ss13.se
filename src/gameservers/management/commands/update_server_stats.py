@@ -16,7 +16,7 @@ URL = 'http://www.byond.com/games/exadv1/spacestation13'
 PLAYER_COUNT = re.compile('Logged in: (\d+) player')
 
 
-class ServerParser(object):
+class ServerScraper(object):
     def __init__(self):
         self.url = URL
 
@@ -86,6 +86,88 @@ class ServerParser(object):
         return server
 
 
+from multiprocessing import Pool
+import socket
+import struct
+
+
+def poll_ss13_server(host, port, timeout=10):
+    print 'polling:', host, port
+    cmd = '?players'
+    query = '\x00\x83{0}\x00\x00\x00\x00\x00{1}\x00'.format(
+        struct.pack('>H', len(cmd) + 6), cmd
+    )
+
+    try:
+        sock = socket.create_connection((host, port), timeout=timeout)
+    except socket.timeout:
+        return
+
+    try:
+        sock.sendall(query)
+        response = sock.recv(1024)
+    except socket.timeout:
+        response = ''
+
+    sock.close()
+    print 'done:', host, port
+    if len(response) < 1:
+        return
+    else:
+        if not response[:5] == '\x00\x83\x00\x05\x2a':
+            return
+        tmp = struct.unpack('f', response[5:9])
+        return (int(tmp[0]), host, port)
+
+class ServerPoller(object):
+    def __init__(self, timeout=30):
+        self.timeout = timeout
+        self.workers = 5
+
+    def run(self):
+        targets = self._get_servers()
+        servers = self._poll_servers(targets)
+        return servers
+
+    def _get_servers(self):
+        return [
+            ('baystation12.net', 8000),
+            ('8.8.4.4', 3333),
+            ('ss13.lljk.net', 26100),
+            ('204.152.219.158', 3333),
+        ]
+
+    def _poll_servers(self, targets):
+        pool = Pool(processes=self.workers)
+        results = []
+        for (host, port) in targets:
+            future = pool.apply_async(poll_ss13_server, (host, port))
+            results.append(future)
+
+        pool.close()
+        pool.join()
+
+        servers = []
+        for future in results:
+            server = self._handle_future(future)
+            if server:
+                servers.append(server)
+        return servers
+
+    def _handle_future(self, future):
+        tmp = future.get()
+        if not tmp:
+            return
+        (players, host, port) = tmp
+        server = dict(
+            title = host,
+            game_url = 'byond://{}:{}'.format(host, port),
+            site_url = '',
+            player_count = players,
+        )
+        return server
+
+
 class Command(BaseCommand):
     help = 'Update history stats for all ss13 servers.'
 
@@ -100,9 +182,21 @@ class Command(BaseCommand):
         return history
 
     def handle(self, *args, **kwargs):
-        parser = ServerParser()
+        servers = []
+
+        # Poll private servers not on the Byond server page
+        # Prioritize these servers and make them be handled first.
+        poller = ServerPoller()
+        servers.extend(poller.run())
+
+        # Now we scrape servers of the Byond server page
+        # We have less control of these, so they become less prioritized
+        # (anyone could make a clone of a server with zero players on,
+        # just to fuck with the cloned server's stats and graphs).
+        parser = ServerScraper()
         #parser.url = './dump.html' # Use a local file instead when testing
-        servers = parser.run()
+        servers.extend(parser.run())
+
         servers_handled = []
         new_items = []
         now = timezone.now()
