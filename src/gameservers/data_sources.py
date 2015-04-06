@@ -11,6 +11,7 @@ from .models import PrivateServer
 
 
 def poll_ss13_server(server, timeout=30):
+    '''Try connect to a SS13 server and get a player count from it.'''
     # Thanks to /u/headswe for showing how to poll servers.
     # Source: http://www.reddit.com/r/SS13/comments/31b5im/a_bunch_of_graphs_for_all_servers/cq11nld
     addr = (server.host, server.port)
@@ -38,20 +39,24 @@ def poll_ss13_server(server, timeout=30):
 
 
 class ServerPoller(object):
+    '''Manually poll hidden/private servers for their stats.'''
     def __init__(self, timeout=10):
         self.timeout = timeout
         self.workers = 5
 
     def run(self):
+        '''Run the poller and return a nice list of dicts containing server data.'''
         targets = self._get_servers()
         servers = self._poll_servers(targets)
         return servers
 
     def _get_servers(self):
+        '''Grab all private servers that's been manually activated.'''
         servers = PrivateServer.objects.filter(active=True)
         return servers
 
     def _poll_servers(self, targets):
+        '''Poll each server in the targets list and try get it's stats.'''
         pool = Pool(processes=self.workers)
         results = []
         for server in targets:
@@ -69,6 +74,7 @@ class ServerPoller(object):
         return servers
 
     def _handle_future(self, future):
+        '''Check if a poll of a server succeeded and return a data dict for it.'''
         players, server = future.get()
         if players == -1:
             # Couldn't get a proper update from the server when polling it,
@@ -84,13 +90,15 @@ class ServerPoller(object):
 
 
 class ServerScraper(object):
+    '''Scrape the Byond server page for server stats.'''
+
     def __init__(self):
         self.url = 'http://www.byond.com/games/exadv1/spacestation13'
         # TODO: Better regexp that can't be spoofed by server names
         self.PLAYERS = re.compile('Logged in: (\d+) player')
 
     def run(self):
-        '''Run the parser and return a neat list of dicts containing server data.'''
+        '''Run the scraper and return a neat list of dicts containing server data.'''
         raw_data = self._download_data()
         servers = self._parse_data(raw_data)
         return servers
