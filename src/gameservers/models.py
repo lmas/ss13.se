@@ -20,6 +20,21 @@ DAY_NAMES = [
 
 
 @python_2_unicode_compatible
+class PrivateServer(models.Model):
+    title = models.CharField(max_length=255)
+    site_url = models.URLField(blank=True)
+    host = models.CharField(max_length=255)
+    port = models.PositiveIntegerField()
+    active = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-active', 'title']
+
+    def __str__(self):
+        return self.title
+
+
+@python_2_unicode_compatible
 class Server(models.Model):
     title = models.CharField(max_length=255)
     game_url = models.CharField(max_length=255)
@@ -102,6 +117,7 @@ class Server(models.Model):
         except SyntaxError:
             tmp = [0,0,0,0,0,0,0]
         return zip(DAY_NAMES, tmp)
+
 
 @python_2_unicode_compatible
 class ServerHistory(models.Model):
