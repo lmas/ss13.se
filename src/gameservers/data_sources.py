@@ -7,19 +7,21 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
+from .models import PrivateServer
 
-def poll_ss13_server(host, port, timeout=30):
+def poll_ss13_server(server, timeout=30):
     # Thanks to /u/headswe for showing how to poll servers.
     # Source: http://www.reddit.com/r/SS13/comments/31b5im/a_bunch_of_graphs_for_all_servers/cq11nld
-    print 'polling:', host, port
+    addr = (server.host, server.port)
+    print 'polling:', server
     query = '\x00\x83{0}\x00\x00\x00\x00\x00?players\x00'.format(
         struct.pack('>H', 14) # 14 = 6 null bytes + len(?players)
     )
 
     try:
-        sock = socket.create_connection((host, port), timeout=timeout)
+        sock = socket.create_connection(addr, timeout=timeout)
     except socket.timeout:
-        return
+        return 0, server
 
     try:
         sock.sendall(query)
@@ -28,14 +30,13 @@ def poll_ss13_server(host, port, timeout=30):
         response = ''
 
     sock.close()
-    print 'done:', host, port
     if len(response) < 1:
-        return
+        return 0, server
     else:
         if not response[:5] == '\x00\x83\x00\x05\x2a':
-            return
+            return 0, server
         tmp = struct.unpack('f', response[5:9])
-        return (int(tmp[0]), host, port)
+        return int(tmp[0]), server
 
 
 class ServerPoller(object):
@@ -49,18 +50,14 @@ class ServerPoller(object):
         return servers
 
     def _get_servers(self):
-        return [
-            ('baystation12.net', 8000),
-            ('8.8.4.4', 3333),
-            ('ss13.lljk.net', 26100),
-            ('204.152.219.158', 3333),
-        ]
+        servers = PrivateServer.objects.filter(active=True)
+        return servers
 
     def _poll_servers(self, targets):
         pool = Pool(processes=self.workers)
         results = []
-        for (host, port) in targets:
-            future = pool.apply_async(poll_ss13_server, (host, port, timeout))
+        for server in targets:
+            future = pool.apply_async(poll_ss13_server, (server, self.timeout))
             results.append(future)
 
         pool.close()
@@ -74,14 +71,11 @@ class ServerPoller(object):
         return servers
 
     def _handle_future(self, future):
-        tmp = future.get()
-        if not tmp:
-            return
-        (players, host, port) = tmp
+        players, server = future.get()
         server = dict(
-            title = host,
-            game_url = 'byond://{}:{}'.format(host, port),
-            site_url = '',
+            title = server.title,
+            game_url = 'byond://{}:{}'.format(server.host, server.port),
+            site_url = server.site_url,
             player_count = players,
         )
         return server
