@@ -8,13 +8,12 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def poll_ss13_server(host, port, timeout=10):
+def poll_ss13_server(host, port, timeout=30):
     # Thanks to /u/headswe for showing how to poll servers.
     # Source: http://www.reddit.com/r/SS13/comments/31b5im/a_bunch_of_graphs_for_all_servers/cq11nld
     print 'polling:', host, port
-    cmd = '?players'
-    query = '\x00\x83{0}\x00\x00\x00\x00\x00{1}\x00'.format(
-        struct.pack('>H', len(cmd) + 6), cmd
+    query = '\x00\x83{0}\x00\x00\x00\x00\x00?players\x00'.format(
+        struct.pack('>H', 14) # 14 = 6 null bytes + len(?players)
     )
 
     try:
@@ -40,7 +39,7 @@ def poll_ss13_server(host, port, timeout=10):
 
 
 class ServerPoller(object):
-    def __init__(self, timeout=30):
+    def __init__(self, timeout=10):
         self.timeout = timeout
         self.workers = 5
 
@@ -61,7 +60,7 @@ class ServerPoller(object):
         pool = Pool(processes=self.workers)
         results = []
         for (host, port) in targets:
-            future = pool.apply_async(poll_ss13_server, (host, port))
+            future = pool.apply_async(poll_ss13_server, (host, port, timeout))
             results.append(future)
 
         pool.close()
@@ -93,8 +92,6 @@ class ServerScraper(object):
         self.url = 'http://www.byond.com/games/exadv1/spacestation13'
         # TODO: Better regexp that can't be spoofed by server names
         self.PLAYERS = re.compile('Logged in: (\d+) player')
-
-
 
     def run(self):
         '''Run the parser and return a neat list of dicts containing server data.'''
