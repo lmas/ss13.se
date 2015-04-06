@@ -11,7 +11,9 @@ Features
 
 - A friendlier server list, which is also sortable.
 
-- Dedicated pages for each server, with more detailed info.
+- Dedicated pages for each public server, with more detailed info.
+
+- Pages for private servers too, upon request.
 
 - Player count stats and graphs.
 
@@ -21,7 +23,7 @@ MIT License, see the LICENSE file.
 
 Credits
 --------------------------------------------------------------------------------
-- A. Svensson - Author and host
+- A. Svensson - Author and host.
 
 - [stuicey](https://www.reddit.com/user/stuicey) - Thanks for original idea and [first work](https://www.reddit.com/r/SS13/comments/2p6znr/hub_population_data/).
 
