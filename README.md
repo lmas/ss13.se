@@ -20,7 +20,9 @@ MIT License, see the LICENSE file.
 Credits
 --------------------------------------------------------------------------------
 A. Svensson - Author and host
+
 [stuicey](https://www.reddit.com/user/stuicey) - Thanks for original idea and [first work](https://www.reddit.com/r/SS13/comments/2p6znr/hub_population_data/).
+
 [headswe](https://www.reddit.com/user/headswe) - Thanks for [reverse engineered code](http://www.reddit.com/r/SS13/comments/31b5im/a_bunch_of_graphs_for_all_servers/cq11nld) for polling SS13 servers.
 
 Todo
