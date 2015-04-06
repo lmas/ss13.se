@@ -34,7 +34,7 @@ Todo
 
 - summary page showing total stats for all servers (# online/warn/offline servers,
   total/average # of online players, log of recently added/removed servers,
-  # of data points since start, age of oldest data point)
+  the # of data points since start, age of oldest data point)
 
 - more pop. history graphs, for current day/week/month
 
