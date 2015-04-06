@@ -46,6 +46,8 @@ Todo
 
 - more pop. history graphs, for current day/week/month
 
+- player growth rate for each server?
+
 - count page visits and show graphs?
 
 - frontpage of some sort
