@@ -24,16 +24,17 @@ def poll_ss13_server(server, timeout=30):
         sock.sendall(query)
         response = sock.recv(1024)
         sock.close()
-        assert(len(response) > 0)
+        assert(len(response) >= 9)
         assert(response[:5] == '\x00\x83\x00\x05\x2a')
-        tmp = struct.unpack('f', response[5:9])
-        return int(tmp[0]), server
+        players = int(struct.unpack('f', response[5:9])[0])
+        assert(players >= 0)
+        return players, server
     except (socket.timeout, AssertionError) as e:
         try:
             sock.close()
         except UnboundLocalError:
             pass
-        return 0, server
+        return -1, server
 
 
 class ServerPoller(object):
@@ -69,6 +70,10 @@ class ServerPoller(object):
 
     def _handle_future(self, future):
         players, server = future.get()
+        if players == -1:
+            # Couldn't get a proper update from the server when polling it,
+            # consider it offline for now
+            return
         server = dict(
             title = server.title,
             game_url = 'byond://{}:{}'.format(server.host, server.port),
