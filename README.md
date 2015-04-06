@@ -22,15 +22,19 @@ Todo
 
 **Bugs**
 
-- update_server_stats: player count regexp could be spoofed
-
 - server_details.html: make the graph tooltip more awesome
 
 - server_details.html: use same format for the verbose timestamps
 
 **New features**
 
-- be able to add in private servers and poll their player stats somehow
+- page to send in requests to add new private servers?
+
+- page to show a log of recently added private servers?
+
+- summary page showing total stats for all servers (# online/warn/offline servers,
+  total/average # of online players, log of recently added/removed servers,
+  # of data points since start, age of oldest data point)
 
 - more pop. history graphs, for current day/week/month
 
