@@ -126,12 +126,18 @@ class ServerScraper(object):
 
     def _parse_server_data(self, data):
         '''Parse the individual parts of each server.'''
+        if len(self.PLAYERS.findall(data.text)) > 1:
+            # HACK: If a server tries to spoof the player count by showing
+            # some extra text matching the PLAYERS pattern (ie. in the
+            # server title), we give them The Boot.
+            return
+
         try:
             title = data.find('b').get_text().splitlines()[0].strip().encode('utf-8')
         except AttributeError:
             # HACK: I think this happends because the raw data was incomplete.
             # No complete data, no server update.
-            return None
+            return
         game_url = data.find('span', 'smaller').text.encode('utf-8')
 
         tmp = data.find('a')
