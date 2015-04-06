@@ -26,11 +26,11 @@ Todo
 
 - server_details.html: use same format for the verbose timestamps
 
+- better colors for warn/offline servers
+
 **New features**
 
 - page to send in requests to add new private servers?
-
-- page to show a log of recently added private servers?
 
 - summary page showing total stats for all servers (# online/warn/offline servers,
   total/average # of online players, log of recently added/removed servers,
