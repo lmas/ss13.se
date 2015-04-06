@@ -1,9 +1,11 @@
 
+from __future__ import unicode_literals
 from datetime import timedelta
 from ast import literal_eval
 
 from django.db import models
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 
 
 DAY_NAMES = [
@@ -17,6 +19,7 @@ DAY_NAMES = [
 ]
 
 
+@python_2_unicode_compatible
 class Server(models.Model):
     title = models.CharField(max_length=255)
     game_url = models.CharField(max_length=255)
@@ -100,6 +103,7 @@ class Server(models.Model):
             tmp = [0,0,0,0,0,0,0]
         return zip(DAY_NAMES, tmp)
 
+@python_2_unicode_compatible
 class ServerHistory(models.Model):
     server = models.ForeignKey(Server)
     created = models.DateTimeField(default=timezone.now)
@@ -109,5 +113,5 @@ class ServerHistory(models.Model):
         ordering = ['-created', 'server']
 
     def __str__(self):
-        return 'History for {} at {}.'.format(self.server, self.created)
+        return 'History for {} at {}.'.format(self.server.title, self.created)
 
