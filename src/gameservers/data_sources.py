@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 
 from .models import PrivateServer
 
+
 def poll_ss13_server(server, timeout=30):
     # Thanks to /u/headswe for showing how to poll servers.
     # Source: http://www.reddit.com/r/SS13/comments/31b5im/a_bunch_of_graphs_for_all_servers/cq11nld
@@ -20,23 +21,19 @@ def poll_ss13_server(server, timeout=30):
 
     try:
         sock = socket.create_connection(addr, timeout=timeout)
-    except socket.timeout:
-        return 0, server
-
-    try:
         sock.sendall(query)
         response = sock.recv(1024)
-    except socket.timeout:
-        response = ''
-
-    sock.close()
-    if len(response) < 1:
-        return 0, server
-    else:
-        if not response[:5] == '\x00\x83\x00\x05\x2a':
-            return 0, server
+        sock.close()
+        assert(len(response) > 0)
+        assert(response[:5] == '\x00\x83\x00\x05\x2a')
         tmp = struct.unpack('f', response[5:9])
         return int(tmp[0]), server
+    except (socket.timeout, AssertionError) as e:
+        try:
+            sock.close()
+        except UnboundLocalError:
+            pass
+        return 0, server
 
 
 class ServerPoller(object):
