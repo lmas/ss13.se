@@ -15,7 +15,6 @@ def poll_ss13_server(server, timeout=30):
     # Thanks to /u/headswe for showing how to poll servers.
     # Source: http://www.reddit.com/r/SS13/comments/31b5im/a_bunch_of_graphs_for_all_servers/cq11nld
     addr = (server.host, server.port)
-    print 'polling:', server
     query = '\x00\x83{0}\x00\x00\x00\x00\x00?players\x00'.format(
         struct.pack('>H', 14) # 14 = 6 null bytes + len(?players)
     )
