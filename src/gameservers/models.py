@@ -33,6 +33,18 @@ class PrivateServer(models.Model):
     def __str__(self):
         return self.title
 
+    @staticmethod
+    def deactivate_server(server):
+        try:
+            tmp = PrivateServer.objects.get(
+                title=server.title,
+                site_url=server.site_url,
+            )
+        except PrivateServer.DoesNotExist:
+            return
+        tmp.active = False
+        tmp.save()
+
 
 @python_2_unicode_compatible
 class Server(models.Model):
@@ -65,6 +77,7 @@ class Server(models.Model):
             delta = now - server.last_updated
             if delta.days >= 7:
                 server.delete()
+                PrivateServer.deactivate_server(server)
 
     def get_stats_history(self, days=7):
         return ServerHistory.objects.filter(
