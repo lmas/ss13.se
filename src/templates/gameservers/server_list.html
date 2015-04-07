@@ -11,7 +11,8 @@
         <thead>
             <tr>
                 <th><span></span></th>
-                <th><span>Players</span></th>
+                <th><span title="Current online players">Cur.</span></th>
+                <th><span title="Average online players">Avg.</span></th>
                 <th><span>Server</span></th>
             </tr>
         </thead>
@@ -35,7 +36,8 @@
                     </th>
                     {% endif %}
                 {% endwith %}
-                    <th>{{server.players_current}}</th>
+                    <th title="Current online players">{{server.players_current}}</th>
+                    <th title="Average online players">{{server.players_avg}}</th>
                     <th>
                         <a href="{% url 'gameservers:detail' pk=server.id slug=server %}">
                             {{server}}
