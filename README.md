@@ -46,6 +46,8 @@ Todo
 
 - clarify time period for graphs
 
+- show note about data source for each server (byond, server poll)
+
 - summary page showing total stats for all servers:
     - # online/warn/offline servers
     - total/average # of online players
