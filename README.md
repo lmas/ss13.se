@@ -56,5 +56,8 @@ Todo
 
 - frontpage of some sort
 
+- about page and move notices about byond etc. to that page
+
+
 - logo?
 
