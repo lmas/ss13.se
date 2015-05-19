@@ -49,5 +49,10 @@
                 </span>
             </p>
         </footer>
+
+    {# jQuery is needed in debug mode for django debug toolbar #}
+    {% if debug %}
+        <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+    {% endif %}
     </body>
 </html>
