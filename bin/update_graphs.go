@@ -121,6 +121,7 @@ func createweekdaygraph(db *sql.DB, id int, title string) {
 	ofilename := filepath.Join(save_dir, fmt.Sprintf("%s%s", prefix, hash))
 
 	// get the server's data and write it to the file
+	// TODO: Move sunday (first day in list at 0) to the end...
 	rows, err := db.Query("select strftime('%w', created) as weekday, avg(players) from gameservers_serverhistory where server_id = ? and created >= ? group by weekday;", id, last_week)
 	checkerror(err)
 	defer rows.Close()
