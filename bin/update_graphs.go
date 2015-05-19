@@ -22,6 +22,17 @@ const save_dir = "/home/lmas/projects/ss13_se/src/static/graphs"
 
 // How far back in time the graphs will go
 var last_week = time.Now().AddDate(0, 0, -7)
+var last_month = time.Now().AddDate(0, -1, 0)
+
+var week_days = [7]string{
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday",
+}
 
 func checkerror(err error) {
 	if err != nil {
@@ -48,14 +59,16 @@ func main() {
 		err := rows.Scan(&id, &title)
 		checkerror(err)
 		creategraphs(db, id, title)
+		createweekdaygraph(db, id, title)
 	}
 	err = rows.Err()
 	checkerror(err)
 }
 
 func creategraphs(db *sql.DB, id int, title string) {
+	prefix := "week-"
 	// create a tmp file
-	ifile, err := ioutil.TempFile("", "graph")
+	ifile, err := ioutil.TempFile("", prefix)
 	checkerror(err)
 	defer ifile.Close()
 	ifilename := ifile.Name()
@@ -64,11 +77,12 @@ func creategraphs(db *sql.DB, id int, title string) {
 	err = os.MkdirAll(save_dir, 0777)
 	checkerror(err)
 	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(title)))
-	ofilename := filepath.Join(save_dir, hash)
+	ofilename := filepath.Join(save_dir, fmt.Sprintf("%s%s", prefix, hash))
 
 	// get the server's data and write it to the file
 	rows, err := db.Query("select created,players from gameservers_serverhistory where server_id = ? and created >= ? order by created asc", id, last_week)
 	checkerror(err)
+	defer rows.Close()
 
 	var (
 		created time.Time
@@ -84,7 +98,48 @@ func creategraphs(db *sql.DB, id int, title string) {
 	checkerror(err)
 
 	// run the plotter against the data file
-	err = exec.Command("./plotter.sh", ifilename, ofilename).Run()
+	err = exec.Command("./plot_time.sh", ifilename, ofilename).Run()
+	checkerror(err)
+
+	// close and remove the tmp file
+	ifile.Close()
+	os.Remove(ifilename)
+}
+
+func createweekdaygraph(db *sql.DB, id int, title string) {
+	prefix := "avg_days-"
+	// create a tmp file
+	ifile, err := ioutil.TempFile("", prefix)
+	checkerror(err)
+	defer ifile.Close()
+	ifilename := ifile.Name()
+
+	// Make sure we have somewhere to save the stored graphs in
+	err = os.MkdirAll(save_dir, 0777)
+	checkerror(err)
+	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(title)))
+	ofilename := filepath.Join(save_dir, fmt.Sprintf("%s%s", prefix, hash))
+
+	// get the server's data and write it to the file
+	rows, err := db.Query("select strftime('%w', created) as weekday, avg(players) from gameservers_serverhistory where server_id = ? and created >= ? group by weekday;", id, last_week)
+	checkerror(err)
+	defer rows.Close()
+
+	var (
+		day     int
+		players float64
+	)
+	for rows.Next() {
+		err := rows.Scan(&day, &players)
+		checkerror(err)
+		_, err = ifile.WriteString(fmt.Sprintf("%s, %f\n", week_days[day], players))
+		checkerror(err)
+	}
+	err = rows.Err()
+	checkerror(err)
+
+	// run the plotter against the data file
+	err = exec.Command("./plot_bar.sh", ifilename, ofilename).Run()
 	checkerror(err)
 
 	// close and remove the tmp file
