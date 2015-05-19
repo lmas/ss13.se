@@ -16,7 +16,5 @@ class ServerDetailView(generic.DetailView):
         context = super(ServerDetailView, self).get_context_data(**kwargs)
         server = context['server']
         context['graph_file'] = hashlib.sha256(server.title).hexdigest()
-        context['weekly_history'] = server.get_stats_history(days=7.5)
-        context['averages_for_weekdays'] = server.get_averages_for_weekdays()
         return context
 

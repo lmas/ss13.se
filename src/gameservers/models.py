@@ -8,17 +8,6 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
 
-DAY_NAMES = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-]
-
-
 @python_2_unicode_compatible
 class PrivateServer(models.Model):
     title = models.CharField(max_length=255)
@@ -57,11 +46,6 @@ class Server(models.Model):
     players_avg = models.PositiveIntegerField(default=0, editable=False)
     players_min = models.PositiveIntegerField(default=0, editable=False)
     players_max = models.PositiveIntegerField(default=0, editable=False)
-    averages_for_weekdays = models.CommaSeparatedIntegerField(
-        max_length=50,
-        editable=False,
-        default='',
-    )
 
     class Meta:
         ordering = ['-players_current', '-last_updated', 'title']
@@ -98,19 +82,6 @@ class Server(models.Model):
             stats['players__max'] or 0,
         )
 
-    def measure_weekdays(self, days=7):
-        history = self.get_stats_history(days=days)
-        weekdays = []
-        # Why can't it be zero indexed like the rest of the fucking community...
-        for day in range(1, 8):
-            tmp = history.filter(created__week_day=day)
-            avg = tmp.aggregate(models.Avg('players'))['players__avg'] or 0
-            weekdays.append(int(round(avg, 0)))
-        # HACK: Since django's __week_day starts on a sunday (amurican suckers)
-        # we have to move sunday (at the start) to the end of the list
-        weekdays.insert(len(weekdays), weekdays.pop(0))
-        return weekdays
-
     def update_stats(self, player_count=0, time=None):
         # TODO: default to setting current time
         if time:
@@ -120,16 +91,6 @@ class Server(models.Model):
 
         tmp = self.measure_players(days=31)
         self.players_avg, self.players_min, self.players_max = tmp
-
-        tmp = self.measure_weekdays(days=31)
-        self.averages_for_weekdays = ','.join([str(i) for i in tmp])
-
-    def get_averages_for_weekdays(self):
-        try:
-            tmp = literal_eval(self.averages_for_weekdays)
-        except SyntaxError:
-            tmp = [0,0,0,0,0,0,0]
-        return zip(DAY_NAMES, tmp)
 
 
 @python_2_unicode_compatible
