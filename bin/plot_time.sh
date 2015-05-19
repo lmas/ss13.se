@@ -11,11 +11,12 @@ gnuplot << EOF
 set datafile separator ","
 set xdata time
 set timefmt "%s" #time format of input data
-set format x "%d/%m" # format of output time
+set format x "%d %a" # format of output time
 
 set style data lines
 set style line 1 linewidth 2
 set grid
+set ytics 0, 10
 unset key
 set title "$3" # If a second arg was supplied we show it as a title too
 set terminal png size 800,200 transparent truecolor
