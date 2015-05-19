@@ -55,9 +55,10 @@
     </table>
 
     <h3>Weekly history</h3>
-    <img src="{% static 'graphs/' %}{{graph_file}}.png" />
+    <img src="{% static 'graphs/' %}week-{{graph_file}}.png" />
     <div id="weekly_history"></div>
     <h3>Average per day</h3>
+    <img src="{% static 'graphs/' %}avg_days-{{graph_file}}.png" />
     <div id="weekday_averages"></div>
     <div id="tooltip"></div>
 
