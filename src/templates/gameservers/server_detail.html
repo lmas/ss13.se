@@ -34,7 +34,6 @@
         </span>ago.
     </p>
 
-
     <h3>Players</h3>
     <table id="player_stats" class="table table-hover">
         <thead>
@@ -56,84 +55,9 @@
 
     <h3>Weekly history</h3>
     <img src="{% static 'graphs/' %}week-{{graph_file}}.png" />
-    <div id="weekly_history"></div>
+
     <h3>Average per day</h3>
     <img src="{% static 'graphs/' %}avg_days-{{graph_file}}.png" />
-    <div id="weekday_averages"></div>
-    <div id="tooltip"></div>
 
-    <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery.flot.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery.flot.time.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery.flot.categories.js' %}"></script>
-    <script type="text/javascript">
-        $(function() {
-            var data = [
-                {# convert timestamp to ms, because javascript... #}
-                {% for item in weekly_history %}
-                    [{{item.created|date:'U'}} * 1000, {{item.players}}],
-                {% endfor %}
-            ];
-            $.plot("#weekly_history", [data], {
-                xaxis: {
-                    mode: "time",
-                    timezone: "browser",
-                },
-                lines: {
-                    show: true,
-                    fill: true,
-                },
-                grid: {
-                    hoverable: true,
-                    borderWidth: 0,
-                },
-            });
-
-            var data= [
-                {% for day, players in averages_for_weekdays %}
-                    ["{{day}}", {{players}}],
-                {% endfor %}
-            ];
-            $.plot("#weekday_averages", [data], {
-                xaxis: {
-                    mode: "categories",
-                },
-                bars: {
-                    show: true,
-                    barWidth: 0.75,
-                    align: "center",
-                },
-                grid: {
-                    hoverable: true,
-                    borderWidth: 0,
-                },
-            });
-
-            $("#weekly_history").bind("plothover", function (event, pos, item) {
-                if (item) {
-                    var time = item.datapoint[0];
-                    var players = item.datapoint[1];
-                    var timestamp = new Date(time).toString();
-                    $("#tooltip")
-                        .html(players + " players at " + timestamp)
-                        .css({top: item.pageY+5, left: item.pageX+5})
-                        .fadeIn(200);
-                } else {
-                    $("#tooltip").hide();
-                }
-            });
-            $("#weekday_averages").bind("plothover", function (event, pos, item) {
-                if (item) {
-                    var players = item.datapoint[1];
-                    $("#tooltip")
-                        .html(players + " players")
-                        .css({top: item.pageY+5, left: item.pageX+5})
-                        .fadeIn(200);
-                } else {
-                    $("#tooltip").hide();
-                }
-            });
-        });
-    </script>
 {% endblock %}
 

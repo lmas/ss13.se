@@ -82,25 +82,6 @@ body {
     width: 25%;
 }
 
-#weekly_history {
-    width:100%;
-    height:200px;
-}
-
-#weekday_averages {
-    width:100%;
-    height:200px;
-}
-
-#tooltip {
-    position: absolute;
-    display: none;
-    border: 1px solid #fdd;
-    padding: 2px;
-    background-color: #fee;
-    opacity: 0.80;
-}
-
 /* Footer *********************************************************************/
 #bottom_footer {
     font-size: 11px;
