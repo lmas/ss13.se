@@ -132,8 +132,15 @@ class ServerScraper(object):
             # server title), we give them The Boot.
             return
 
+        # HACK: In case the server title is encased in extra <B> tags, 
+        # simply grab the second matching tag and use only that as title
+        # TODO: What if there's multiple <B> tags all over the data?
+        tmp = data.find('b')
+        if tmp.find_all('b'):
+            tmp = tmp.find('b')
+
         try:
-            title = data.find('b').get_text().splitlines()[0].strip().encode('utf-8')
+            title = tmp.get_text().splitlines()[0].strip().encode('utf-8')
         except AttributeError:
             # HACK: I think this happends because the raw data was incomplete.
             # No complete data, no server update.
