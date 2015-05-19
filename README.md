@@ -34,10 +34,6 @@ Todo
 
 **Bugs**
 
-- server_details.html: make the graph tooltip more awesome
-
-- server_details.html: use same format for the verbose timestamps
-
 - better colors for warn/offline servers
 
 **New features**
@@ -66,7 +62,6 @@ Todo
 - frontpage of some sort
 
 - about page and move notices about byond etc. to that page
-
 
 - logo?
 
