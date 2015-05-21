@@ -15,16 +15,16 @@ import (
 )
 
 // TODO: change these to be cmd args instead!
-const db_file = "/home/lmas/projects/ss13_se/src/db.sqlite3"
+const DB_FIL = "/home/lmas/projects/ss13_se/src/db.sqlite3"
 
 // Dir to save new graphs in
-const save_dir = "/home/lmas/projects/ss13_se/src/static/graphs"
+const SAVE_DIR = "/home/lmas/projects/ss13_se/src/static/graphs"
 
 // How far back in time the graphs will go
-var last_week = time.Now().AddDate(0, 0, -7)
-var last_month = time.Now().AddDate(0, -1, 0)
+var LAST_WEEK = time.Now().AddDate(0, 0, -7)
+var LAST_MONTH = time.Now().AddDate(0, -1, 0)
 
-var week_days = [7]string{
+var WEEK_DAYS = [7]string{
 	"Sunday",
 	"Monday",
 	"Tuesday",
@@ -34,15 +34,9 @@ var week_days = [7]string{
 	"Saturday",
 }
 
-func checkerror(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func main() {
 	// open a db connection
-	db, err := sql.Open("sqlite3", db_file)
+	db, err := sql.Open("sqlite3", DB_FIL)
 	checkerror(err)
 	defer db.Close()
 
@@ -65,6 +59,12 @@ func main() {
 	checkerror(err)
 }
 
+func checkerror(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func createtempfile(prefix string) (f *os.File, name string) {
 	// create a tmp file
 	file, err := ioutil.TempFile("", prefix)
@@ -73,10 +73,10 @@ func createtempfile(prefix string) (f *os.File, name string) {
 }
 
 func getgraphpath(title string, prefix string) (path string) {
-	err := os.MkdirAll(save_dir, 0777)
+	err := os.MkdirAll(SAVE_DIR, 0777)
 	checkerror(err)
 	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(title)))
-	return filepath.Join(save_dir, fmt.Sprintf("%s%s", prefix, hash))
+	return filepath.Join(SAVE_DIR, fmt.Sprintf("%s%s", prefix, hash))
 }
 
 func creategraphs(db *sql.DB, prefix string, id int, title string) {
@@ -88,7 +88,7 @@ func creategraphs(db *sql.DB, prefix string, id int, title string) {
 	ofilename := getgraphpath(title, prefix)
 
 	// get the server's data and write it to the file
-	rows, err := db.Query("select created,players from gameservers_serverhistory where server_id = ? and created >= ? order by created asc", id, last_week)
+	rows, err := db.Query("select created,players from gameservers_serverhistory where server_id = ? and created >= ? order by created asc", id, LAST_WEEK)
 	checkerror(err)
 	defer rows.Close()
 
@@ -124,7 +124,7 @@ func createweekdaygraph(db *sql.DB, prefix string, id int, title string) {
 
 	// get the server's data and write it to the file
 	// TODO: Move sunday (first day in list at 0) to the end...
-	rows, err := db.Query("select strftime('%w', created) as weekday, avg(players) from gameservers_serverhistory where server_id = ? and created >= ? group by weekday;", id, last_week)
+	rows, err := db.Query("select strftime('%w', created) as weekday, avg(players) from gameservers_serverhistory where server_id = ? and created >= ? group by weekday;", id, LAST_WEEK)
 	checkerror(err)
 	defer rows.Close()
 
@@ -135,7 +135,7 @@ func createweekdaygraph(db *sql.DB, prefix string, id int, title string) {
 	for rows.Next() {
 		err := rows.Scan(&day, &players)
 		checkerror(err)
-		_, err = ifile.WriteString(fmt.Sprintf("%s, %f\n", week_days[day], players))
+		_, err = ifile.WriteString(fmt.Sprintf("%s, %f\n", WEEK_DAYS[day], players))
 		checkerror(err)
 	}
 	err = rows.Err()
