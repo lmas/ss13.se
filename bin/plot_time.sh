@@ -11,7 +11,6 @@ gnuplot << EOF
 set datafile separator ","
 set xdata time
 set timefmt "%s" #time format of input data
-set format x "%d %a" # format of output time
 
 set style data lines
 set style line 1 linewidth 2
