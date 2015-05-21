@@ -52,8 +52,8 @@ func main() {
 	for rows.Next() {
 		err := rows.Scan(&id, &title)
 		checkerror(err)
-		creategraphs(db, "week-", id, title)
-		createweekdaygraph(db, "avg_days-", id, title)
+		createtimegraph(db, "week-time-", id, title, LAST_WEEK)
+		createweekdaygraph(db, "week-avg_day-", id, title, LAST_WEEK)
 	}
 	err = rows.Err()
 	checkerror(err)
@@ -65,30 +65,26 @@ func checkerror(err error) {
 	}
 }
 
-func createtempfile(prefix string) (f *os.File, name string) {
+func setuptemppaths(prefix string, title string) (f *os.File, name string, path string) {
 	// create a tmp file
 	file, err := ioutil.TempFile("", prefix)
 	checkerror(err)
-	return file, file.Name()
-}
-
-func getgraphpath(title string, prefix string) (path string) {
-	err := os.MkdirAll(SAVE_DIR, 0777)
-	checkerror(err)
-	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(title)))
-	return filepath.Join(SAVE_DIR, fmt.Sprintf("%s%s", prefix, hash))
-}
-
-func creategraphs(db *sql.DB, prefix string, id int, title string) {
-	// create a tmp file
-	ifile, ifilename := createtempfile(prefix)
-	defer ifile.Close()
 
 	// Make sure we have somewhere to save the stored graphs in
-	ofilename := getgraphpath(title, prefix)
+	err = os.MkdirAll(SAVE_DIR, 0777)
+	checkerror(err)
+	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(title)))
+	path = filepath.Join(SAVE_DIR, fmt.Sprintf("%s%s", prefix, hash))
+
+	return file, file.Name(), path
+}
+
+func createtimegraph(db *sql.DB, prefix string, id int, title string, period time.Time) {
+	ifile, ifilename, ofilename := setuptemppaths(prefix, title)
+	defer ifile.Close()
 
 	// get the server's data and write it to the file
-	rows, err := db.Query("select created,players from gameservers_serverhistory where server_id = ? and created >= ? order by created asc", id, LAST_WEEK)
+	rows, err := db.Query("select created,players from gameservers_serverhistory where server_id = ? and created >= ? order by created asc", id, period)
 	checkerror(err)
 	defer rows.Close()
 
@@ -114,17 +110,13 @@ func creategraphs(db *sql.DB, prefix string, id int, title string) {
 	os.Remove(ifilename)
 }
 
-func createweekdaygraph(db *sql.DB, prefix string, id int, title string) {
-	// create a tmp file
-	ifile, ifilename := createtempfile(prefix)
+func createweekdaygraph(db *sql.DB, prefix string, id int, title string, period time.Time) {
+	ifile, ifilename, ofilename := setuptemppaths(prefix, title)
 	defer ifile.Close()
-
-	// Make sure we have somewhere to save the stored graphs in
-	ofilename := getgraphpath(title, prefix)
 
 	// get the server's data and write it to the file
 	// TODO: Move sunday (first day in list at 0) to the end...
-	rows, err := db.Query("select strftime('%w', created) as weekday, avg(players) from gameservers_serverhistory where server_id = ? and created >= ? group by weekday;", id, LAST_WEEK)
+	rows, err := db.Query("select strftime('%w', created) as weekday, avg(players) from gameservers_serverhistory where server_id = ? and created >= ? group by weekday;", id, period)
 	checkerror(err)
 	defer rows.Close()
 
