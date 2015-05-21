@@ -58,26 +58,34 @@ func main() {
 	for rows.Next() {
 		err := rows.Scan(&id, &title)
 		checkerror(err)
-		creategraphs(db, id, title)
-		createweekdaygraph(db, id, title)
+		creategraphs(db, "week-", id, title)
+		createweekdaygraph(db, "avg_days-", id, title)
 	}
 	err = rows.Err()
 	checkerror(err)
 }
 
-func creategraphs(db *sql.DB, id int, title string) {
-	prefix := "week-"
+func createtempfile(prefix string) (f *os.File, name string) {
 	// create a tmp file
-	ifile, err := ioutil.TempFile("", prefix)
+	file, err := ioutil.TempFile("", prefix)
 	checkerror(err)
-	defer ifile.Close()
-	ifilename := ifile.Name()
+	return file, file.Name()
+}
 
-	// Make sure we have somewhere to save the stored graphs in
-	err = os.MkdirAll(save_dir, 0777)
+func getgraphpath(title string, prefix string) (path string) {
+	err := os.MkdirAll(save_dir, 0777)
 	checkerror(err)
 	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(title)))
-	ofilename := filepath.Join(save_dir, fmt.Sprintf("%s%s", prefix, hash))
+	return filepath.Join(save_dir, fmt.Sprintf("%s%s", prefix, hash))
+}
+
+func creategraphs(db *sql.DB, prefix string, id int, title string) {
+	// create a tmp file
+	ifile, ifilename := createtempfile(prefix)
+	defer ifile.Close()
+
+	// Make sure we have somewhere to save the stored graphs in
+	ofilename := getgraphpath(title, prefix)
 
 	// get the server's data and write it to the file
 	rows, err := db.Query("select created,players from gameservers_serverhistory where server_id = ? and created >= ? order by created asc", id, last_week)
@@ -106,19 +114,13 @@ func creategraphs(db *sql.DB, id int, title string) {
 	os.Remove(ifilename)
 }
 
-func createweekdaygraph(db *sql.DB, id int, title string) {
-	prefix := "avg_days-"
+func createweekdaygraph(db *sql.DB, prefix string, id int, title string) {
 	// create a tmp file
-	ifile, err := ioutil.TempFile("", prefix)
-	checkerror(err)
+	ifile, ifilename := createtempfile(prefix)
 	defer ifile.Close()
-	ifilename := ifile.Name()
 
 	// Make sure we have somewhere to save the stored graphs in
-	err = os.MkdirAll(save_dir, 0777)
-	checkerror(err)
-	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(title)))
-	ofilename := filepath.Join(save_dir, fmt.Sprintf("%s%s", prefix, hash))
+	ofilename := getgraphpath(title, prefix)
 
 	// get the server's data and write it to the file
 	// TODO: Move sunday (first day in list at 0) to the end...
