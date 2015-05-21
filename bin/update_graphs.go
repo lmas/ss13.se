@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -52,8 +53,9 @@ func main() {
 	for rows.Next() {
 		err := rows.Scan(&id, &title)
 		checkerror(err)
-		createtimegraph(db, "week-time-", id, title, LAST_WEEK)
-		createtimegraph(db, "month-time-", id, title, LAST_MONTH)
+		// stats are updated 4 times per hour, so: 2 = 30 min, 24 = 6 hours
+		createtimegraph(db, "week-time-", id, title, LAST_WEEK, 4)
+		createtimegraph(db, "month-time-", id, title, LAST_MONTH, 24)
 		createweekdaygraph(db, "month-avg_day-", id, title, LAST_MONTH)
 	}
 	err = rows.Err()
@@ -80,7 +82,7 @@ func setuptemppaths(prefix string, title string) (f *os.File, name string, path 
 	return file, file.Name(), path
 }
 
-func createtimegraph(db *sql.DB, prefix string, id int, title string, period time.Time) {
+func createtimegraph(db *sql.DB, prefix string, id int, title string, period time.Time, every int) {
 	ifile, ifilename, ofilename := setuptemppaths(prefix, title)
 	defer ifile.Close()
 
@@ -103,7 +105,7 @@ func createtimegraph(db *sql.DB, prefix string, id int, title string, period tim
 	checkerror(err)
 
 	// run the plotter against the data file
-	err = exec.Command("./plot_time.sh", ifilename, ofilename).Run()
+	err = exec.Command("./plot_time.sh", ifilename, ofilename, strconv.Itoa(every)).Run()
 	checkerror(err)
 
 	// close and remove the tmp file
