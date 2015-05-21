@@ -53,11 +53,16 @@
             </tr>
     </table>
 
-    <h3>Weekly history</h3>
+    <h3>History</h3>
     <img src="{% static 'graphs/' %}week-time-{{graph_file}}.png" />
+    <b>Last week</b>
+    <br />
+    <img src="{% static 'graphs/' %}month-time-{{graph_file}}.png" />
+    <b>Last month</b>
 
     <h3>Average per day</h3>
-    <img src="{% static 'graphs/' %}week-avg_day-{{graph_file}}.png" />
+    <img src="{% static 'graphs/' %}month-avg_day-{{graph_file}}.png" />
+    <b>Last month</b>
 
 {% endblock %}
 

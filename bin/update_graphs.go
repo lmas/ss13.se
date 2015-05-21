@@ -53,7 +53,8 @@ func main() {
 		err := rows.Scan(&id, &title)
 		checkerror(err)
 		createtimegraph(db, "week-time-", id, title, LAST_WEEK)
-		createweekdaygraph(db, "week-avg_day-", id, title, LAST_WEEK)
+		createtimegraph(db, "month-time-", id, title, LAST_MONTH)
+		createweekdaygraph(db, "month-avg_day-", id, title, LAST_MONTH)
 	}
 	err = rows.Err()
 	checkerror(err)
