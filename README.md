@@ -40,8 +40,6 @@ Todo
 
 - page to send in requests to add new private servers?
 
-- clarify time period for graphs
-
 - show note about data source for each server (byond, server poll)
 
 - summary page showing total stats for all servers:
@@ -53,11 +51,7 @@ Todo
     - time since since latest update
     - time to run update
 
-- more pop. history graphs, for current day/week/month
-
 - player growth rate for each server?
-
-- count page visits and show graphs?
 
 - frontpage of some sort
 
