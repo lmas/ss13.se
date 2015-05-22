@@ -150,23 +150,38 @@ func monthlyaveragedaygraph(db *sql.DB, id int, title string) {
 	defer ifile.Close()
 
 	// get the server's data and write it to the file
-	// TODO: Move sunday (first day in list at 0) to the end...
-	rows, err := db.Query("select strftime('%w', created) as weekday, avg(players) from gameservers_serverhistory where server_id = ? and created >= ? group by weekday;", id, LAST_MONTH)
+	rows, err := db.Query("select "+
+		"strftime('%w', created) as weekday, avg(players) "+
+		"from gameservers_serverhistory "+
+		"where server_id = ? and created >= ? "+
+		"group by weekday;", id, LAST_MONTH)
 	checkerror(err)
 	defer rows.Close()
 
 	var (
-		day     int
-		players float64
+		day         int
+		players     float64
+		avg_players [7]float64
 	)
+
+	// Scan in the rows
 	for rows.Next() {
 		err := rows.Scan(&day, &players)
 		checkerror(err)
-		_, err = ifile.WriteString(fmt.Sprintf("%s, %f\n", WEEK_DAYS[day], players))
-		checkerror(err)
+		avg_players[day] = players
 	}
 	err = rows.Err()
 	checkerror(err)
+
+	// Then write each day's average to the file
+	for i := 1; i <= 6; i++ {
+		_, err = ifile.WriteString(fmt.Sprintf("%s, %f\n", WEEK_DAYS[i], avg_players[i]))
+		checkerror(err)
+	}
+	// Oh hey! Look at what I found! It's sunday!!
+	_, err = ifile.WriteString(fmt.Sprintf("%s, %f\n", WEEK_DAYS[0], avg_players[0]))
+	checkerror(err)
+	// Fucking wankers and their stupid usage of sunday as the first day of week...
 
 	// run the plotter against the data file
 	err = exec.Command("./plot_bar.sh", ifilename, ofilename).Run()
