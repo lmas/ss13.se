@@ -5,7 +5,6 @@
 
 # arg 1: path to file with the raw data
 # arg 2: path to file to save the graph in (.png will be appended)
-# arg 3: periodic sampling of data, see http://gnuplot.info/docs_4.2/node121.html
 
 gnuplot << EOF
 set datafile separator ","
@@ -17,6 +16,8 @@ set grid
 unset key
 set terminal png size 800,200 transparent truecolor
 set output "$2.png"
+set xtics rotate
+set format x "%H:%M\n%d/%m"
 
-plot "$1" every $3 using 1:2 linewidth 2
+plot "$1" using 1:2 linewidth 2
 EOF

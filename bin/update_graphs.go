@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -53,10 +52,9 @@ func main() {
 	for rows.Next() {
 		err := rows.Scan(&id, &title)
 		checkerror(err)
-		// stats are updated 4 times per hour, so: 2 = 30 min, 24 = 6 hours
-		createtimegraph(db, "week-time-", id, title, LAST_WEEK, 4)
-		createtimegraph(db, "month-time-", id, title, LAST_MONTH, 24)
-		createweekdaygraph(db, "month-avg_day-", id, title, LAST_MONTH)
+		weeklyhistorygraph(db, id, title)
+		monthlyhistorygraph(db, id, title)
+		monthlyaveragedaygraph(db, id, title)
 	}
 	err = rows.Err()
 	checkerror(err)
@@ -82,12 +80,13 @@ func setuptemppaths(prefix string, title string) (f *os.File, name string, path 
 	return file, file.Name(), path
 }
 
-func createtimegraph(db *sql.DB, prefix string, id int, title string, period time.Time, every int) {
+func weeklyhistorygraph(db *sql.DB, id int, title string) {
+	prefix := "week-time-"
 	ifile, ifilename, ofilename := setuptemppaths(prefix, title)
 	defer ifile.Close()
 
-	// get the server's data and write it to the file
-	rows, err := db.Query("select created,players from gameservers_serverhistory where server_id = ? and created >= ? order by created asc", id, period)
+	// Rows for server, newer then LAST_WEEK and only on the hour
+	rows, err := db.Query("select created,players from gameservers_serverhistory where server_id = ? and created >= ? and strftime('%M', created) = '00' order by created asc", id, LAST_WEEK)
 	checkerror(err)
 	defer rows.Close()
 
@@ -105,7 +104,7 @@ func createtimegraph(db *sql.DB, prefix string, id int, title string, period tim
 	checkerror(err)
 
 	// run the plotter against the data file
-	err = exec.Command("./plot_time.sh", ifilename, ofilename, strconv.Itoa(every)).Run()
+	err = exec.Command("./plot_time.sh", ifilename, ofilename).Run()
 	checkerror(err)
 
 	// close and remove the tmp file
@@ -113,13 +112,46 @@ func createtimegraph(db *sql.DB, prefix string, id int, title string, period tim
 	os.Remove(ifilename)
 }
 
-func createweekdaygraph(db *sql.DB, prefix string, id int, title string, period time.Time) {
+func monthlyhistorygraph(db *sql.DB, id int, title string) {
+	prefix := "month-time-"
+	ifile, ifilename, ofilename := setuptemppaths(prefix, title)
+	defer ifile.Close()
+
+	// Rows for server, newer then LAST_WEEK and only every 6th hour
+	rows, err := db.Query("select created,players from gameservers_serverhistory where server_id = ? and created >= ? and strftime('%M', created) = '00' and strftime('%H', created) in ('00', '06', '12', '18') order by created asc", id, LAST_MONTH)
+	checkerror(err)
+	defer rows.Close()
+
+	var (
+		created time.Time
+		players int
+	)
+	for rows.Next() {
+		err := rows.Scan(&created, &players)
+		checkerror(err)
+		_, err = ifile.WriteString(fmt.Sprintf("%d, %d\n", created.Unix(), players))
+		checkerror(err)
+	}
+	err = rows.Err()
+	checkerror(err)
+
+	// run the plotter against the data file
+	err = exec.Command("./plot_time.sh", ifilename, ofilename).Run()
+	checkerror(err)
+
+	// close and remove the tmp file
+	ifile.Close()
+	os.Remove(ifilename)
+}
+
+func monthlyaveragedaygraph(db *sql.DB, id int, title string) {
+	prefix := "month-avg_day-"
 	ifile, ifilename, ofilename := setuptemppaths(prefix, title)
 	defer ifile.Close()
 
 	// get the server's data and write it to the file
 	// TODO: Move sunday (first day in list at 0) to the end...
-	rows, err := db.Query("select strftime('%w', created) as weekday, avg(players) from gameservers_serverhistory where server_id = ? and created >= ? group by weekday;", id, period)
+	rows, err := db.Query("select strftime('%w', created) as weekday, avg(players) from gameservers_serverhistory where server_id = ? and created >= ? group by weekday;", id, LAST_MONTH)
 	checkerror(err)
 	defer rows.Close()
 
