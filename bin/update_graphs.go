@@ -82,11 +82,16 @@ func setuptemppaths(prefix string, title string) (f *os.File, name string, path 
 
 func weeklyhistorygraph(db *sql.DB, id int, title string) {
 	prefix := "week-time-"
+	// Create a new temp file, get it's filepath and get the final storage path
 	ifile, ifilename, ofilename := setuptemppaths(prefix, title)
 	defer ifile.Close()
 
 	// Rows for server, newer then LAST_WEEK and only on the hour
-	rows, err := db.Query("select created,players from gameservers_serverhistory where server_id = ? and created >= ? and strftime('%M', created) = '00' order by created asc", id, LAST_WEEK)
+	rows, err := db.Query("select created,players "+
+		"from gameservers_serverhistory "+
+		"where server_id = ? and created >= ? and strftime('%M', created) = '00' "+
+		"order by created asc",
+		id, LAST_WEEK)
 	checkerror(err)
 	defer rows.Close()
 
@@ -94,6 +99,7 @@ func weeklyhistorygraph(db *sql.DB, id int, title string) {
 		created time.Time
 		players int
 	)
+	// Scan in each row and write it to the tmp file
 	for rows.Next() {
 		err := rows.Scan(&created, &players)
 		checkerror(err)
@@ -103,11 +109,11 @@ func weeklyhistorygraph(db *sql.DB, id int, title string) {
 	err = rows.Err()
 	checkerror(err)
 
-	// run the plotter against the data file
+	// run the plotter against the tmp file
 	err = exec.Command("./plot_time.sh", ifilename, ofilename).Run()
 	checkerror(err)
 
-	// close and remove the tmp file
+	// close and remove the file
 	ifile.Close()
 	os.Remove(ifilename)
 }
@@ -118,7 +124,12 @@ func monthlyhistorygraph(db *sql.DB, id int, title string) {
 	defer ifile.Close()
 
 	// Rows for server, newer then LAST_WEEK and only every 6th hour
-	rows, err := db.Query("select created,players from gameservers_serverhistory where server_id = ? and created >= ? and strftime('%M', created) = '00' and strftime('%H', created) in ('00', '06', '12', '18') order by created asc", id, LAST_MONTH)
+	rows, err := db.Query("select created,players "+
+		"from gameservers_serverhistory "+
+		"where server_id = ? and created >= ? and strftime('%M', created) = '00' "+
+		"and strftime('%H', created) in ('00', '06', '12', '18') "+
+		"order by created asc",
+		id, LAST_MONTH)
 	checkerror(err)
 	defer rows.Close()
 
@@ -135,11 +146,9 @@ func monthlyhistorygraph(db *sql.DB, id int, title string) {
 	err = rows.Err()
 	checkerror(err)
 
-	// run the plotter against the data file
 	err = exec.Command("./plot_time.sh", ifilename, ofilename).Run()
 	checkerror(err)
 
-	// close and remove the tmp file
 	ifile.Close()
 	os.Remove(ifilename)
 }
@@ -149,7 +158,6 @@ func monthlyaveragedaygraph(db *sql.DB, id int, title string) {
 	ifile, ifilename, ofilename := setuptemppaths(prefix, title)
 	defer ifile.Close()
 
-	// get the server's data and write it to the file
 	rows, err := db.Query("select "+
 		"strftime('%w', created) as weekday, avg(players) "+
 		"from gameservers_serverhistory "+
@@ -164,7 +172,6 @@ func monthlyaveragedaygraph(db *sql.DB, id int, title string) {
 		avg_players [7]float64
 	)
 
-	// Scan in the rows
 	for rows.Next() {
 		err := rows.Scan(&day, &players)
 		checkerror(err)
@@ -173,7 +180,7 @@ func monthlyaveragedaygraph(db *sql.DB, id int, title string) {
 	err = rows.Err()
 	checkerror(err)
 
-	// Then write each day's average to the file
+	// Write each day's average to the file
 	for i := 1; i <= 6; i++ {
 		_, err = ifile.WriteString(fmt.Sprintf("%s, %f\n", WEEK_DAYS[i], avg_players[i]))
 		checkerror(err)
@@ -183,11 +190,9 @@ func monthlyaveragedaygraph(db *sql.DB, id int, title string) {
 	checkerror(err)
 	// Fucking wankers and their stupid usage of sunday as the first day of week...
 
-	// run the plotter against the data file
 	err = exec.Command("./plot_bar.sh", ifilename, ofilename).Run()
 	checkerror(err)
 
-	// close and remove the tmp file
 	ifile.Close()
 	os.Remove(ifilename)
 }
