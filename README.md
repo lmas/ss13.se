@@ -43,8 +43,8 @@ Todo
 - show note about data source for each server (byond, server poll)
 
 - summary page showing total stats for all servers:
-    - # online/warn/offline servers
-    - total/average # of online players
+    - # online/warn/offline servers + graphs
+    - total/average # of online players + graphs
     - log of recently added/removed servers
     - the # of data points since start
     - age of oldest data point
