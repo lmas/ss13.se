@@ -29,6 +29,8 @@ Credits
 
 - [headswe](https://www.reddit.com/user/headswe) - Thanks for [reverse engineered code](http://www.reddit.com/r/SS13/comments/31b5im/a_bunch_of_graphs_for_all_servers/cq11nld) for polling SS13 servers.
 
+- [Hugo14453](https://github.com/Hugo14453) - Thanks for new corgi favicon.
+
 Todo
 --------------------------------------------------------------------------------
 
