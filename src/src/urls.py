@@ -9,4 +9,5 @@ urlpatterns = patterns('',
     # HACK: redirect root index. Might have to do something about it soon..
     url(r'^$', RedirectView.as_view(url='/servers', permanent=False), name='index'),
     url(r'^servers/', include('gameservers.urls', namespace='gameservers')),
+    url(r'^about/', include('about.urls', namespace='about')),
 )
