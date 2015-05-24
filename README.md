@@ -32,7 +32,14 @@ there's no way to guarantee that the calculated stats and graphs are 100% correc
 
 But then again it's just some silly numbers for a bunch of games.
 
+Source Code
+--------------------------------------------------------------------------------
+This is a open source project running on [Python](https://www.python.org/) and [Django](https://www.djangoproject.com/) (for the dynamic web
+stuff), a little [Go](https://golang.org/) (for some behind-the-scene scripting) and some [gnuplot](http://www.gnuplot.info/) (for some
+ugly but interesting graphs).
 
+The source code itself is hosted at [github.com](https://github.com/lmas/ss13_se) and is **open for any and all
+contributions**.
 
 License
 --------------------------------------------------------------------------------
@@ -60,6 +67,8 @@ Todo
 - Show note about data source for each server (scraped/polled).
 
 - Rewrite the whole update script to go.
+
+- Show fancy web stats from the web server logs.
 
 - Summary page showing overall stats for all servers:
     - time since since latest update
