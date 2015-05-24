@@ -80,6 +80,13 @@ func setuptemppaths(prefix string, title string) (f *os.File, name string, path 
 	return file, file.Name(), path
 }
 
+func runcommand(cmd string, title string, args ...string) {
+	out, err := exec.Command(cmd, args...).CombinedOutput()
+	if err != nil && len(out) > 0 {
+		log.Printf("ERROR running '%s' for '%s': \n%s\n", cmd, title, out)
+	}
+	checkerror(err)
+}
 func weeklyhistorygraph(db *sql.DB, id int, title string) {
 	prefix := "week-time-"
 	// Create a new temp file, get it's filepath and get the final storage path
@@ -110,8 +117,7 @@ func weeklyhistorygraph(db *sql.DB, id int, title string) {
 	checkerror(err)
 
 	// run the plotter against the tmp file
-	err = exec.Command("./plot_time.sh", ifilename, ofilename).Run()
-	checkerror(err)
+	runcommand("./plot_time.sh", title, ifilename, ofilename)
 
 	// close and remove the file
 	ifile.Close()
@@ -146,8 +152,7 @@ func monthlyhistorygraph(db *sql.DB, id int, title string) {
 	err = rows.Err()
 	checkerror(err)
 
-	err = exec.Command("./plot_time.sh", ifilename, ofilename).Run()
-	checkerror(err)
+	runcommand("./plot_time.sh", title, ifilename, ofilename)
 
 	ifile.Close()
 	os.Remove(ifilename)
@@ -190,8 +195,7 @@ func monthlyaveragedaygraph(db *sql.DB, id int, title string) {
 	checkerror(err)
 	// Fucking wankers and their stupid usage of sunday as the first day of week...
 
-	err = exec.Command("./plot_bar.sh", ifilename, ofilename).Run()
-	checkerror(err)
+	runcommand("./plot_bar.sh", title, ifilename, ofilename)
 
 	ifile.Close()
 	os.Remove(ifilename)
