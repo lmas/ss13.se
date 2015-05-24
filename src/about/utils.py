@@ -9,7 +9,11 @@ from django.conf import settings
 
 def markdown(text):
     # In case I would ever switch to some other markdown lib.
-    return md.markdown(text)
+    return md.markdown(
+        text,
+        extensions=['markdown.extensions.nl2br'],
+        output_format='html5',
+    )
 
 def load_readme():
     '''Read the contents of the project README and return it as markdown html.'''
