@@ -70,14 +70,11 @@ Todo
 
 - Show fancy web stats from the web server logs.
 
-- Summary page showing overall stats for all servers:
-    - time since since latest update
+- stats page:
     - time to run update
-    - no. of online/warn/offline servers + graphs
-    - total/average no. of online players + graphs
     - log of recently added/removed servers
-    - the no. of data points since start
-    - age of oldest data point?
+    - server graphs
+    - player graphs + average
 
 **Suggestions**
 
