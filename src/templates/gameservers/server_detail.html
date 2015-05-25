@@ -54,14 +54,14 @@
     </table>
 
     <h3>History</h3>
-    <img src="{% static 'graphs/' %}week-time-{{graph_file}}.png" />
+    <img src="{% static 'graphs/' %}week-time-{{graph_file}}.png" alt="(No data)" />
     <b>Last week (players / hour)</b>
     <br />
-    <img src="{% static 'graphs/' %}month-time-{{graph_file}}.png" />
+    <img src="{% static 'graphs/' %}month-time-{{graph_file}}.png" alt="(No data)" />
     <b>Last month (players / 6 hours)</b>
 
     <h3>Average per day</h3>
-    <img src="{% static 'graphs/' %}month-avg_day-{{graph_file}}.png" />
+    <img src="{% static 'graphs/' %}month-avg_day-{{graph_file}}.png" alt="(No data)" />
     <b>Last month</b>
 
 {% endblock %}
