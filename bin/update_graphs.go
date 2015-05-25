@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -49,16 +50,28 @@ func main() {
 	var (
 		id    int
 		title string
+		group sync.WaitGroup
 	)
 	for rows.Next() {
 		err := rows.Scan(&id, &title)
 		checkerror(err)
-		weeklyhistorygraph(db, id, title)
-		monthlyhistorygraph(db, id, title)
-		monthlyaveragedaygraph(db, id, title)
+
+		// Make a new dumb goroutine
+		group.Add(1)
+		go updategraphs(db, &group, id, title)
 	}
 	err = rows.Err()
 	checkerror(err)
+
+	// Wait for all goroutines to finish
+	group.Wait()
+}
+
+func updategraphs(db *sql.DB, group *sync.WaitGroup, id int, title string) {
+	defer group.Done()
+	weeklyhistorygraph(db, id, title)
+	monthlyhistorygraph(db, id, title)
+	monthlyaveragedaygraph(db, id, title)
 }
 
 func checkerror(err error) {
