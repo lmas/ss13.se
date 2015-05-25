@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -88,15 +89,7 @@ func runcommand(cmd string, title string, args ...string) {
 	checkerror(err)
 }
 func weeklyhistorygraph(db *sql.DB, id int, title string) {
-	prefix := "week-time-"
-	// Create a new temp file, get it's filepath and get the final storage path
-	ifile, ifilename, ofilename := setuptemppaths(prefix, title)
-	defer func() {
-		ifile.Close()
-		os.Remove(ifilename)
-	}()
-
-	// Rows for server, newer then LAST_WEEK and only on the hour
+	// Get the rows for the server, newer then LAST_WEEK and only on the hour
 	rows, err := db.Query("select created,players "+
 		"from gameservers_serverhistory "+
 		"where server_id = ? and created >= ? and strftime('%M', created) = '00' "+
@@ -108,32 +101,41 @@ func weeklyhistorygraph(db *sql.DB, id int, title string) {
 	var (
 		created time.Time
 		players int
-		gotrow  bool = false
+		data    []string
 	)
-	// Scan in each row and write it to the tmp file
+	// Scan in each row and store it in mem
 	for rows.Next() {
 		err := rows.Scan(&created, &players)
 		checkerror(err)
-		_, err = ifile.WriteString(fmt.Sprintf("%d, %d\n", created.Unix(), players))
+		data = append(data, fmt.Sprintf("%d, %d\n", created.Unix(), players))
 		checkerror(err)
-		gotrow = true
 	}
 	err = rows.Err()
 	checkerror(err)
 
-	if gotrow == false {
+	// No need to continue running if there's no data to work with
+	if len(data) < 1 {
 		return
 	}
 
-	// run the plotter against the tmp file
+	// Create a new temp file, get it's filepath and get the final storage path
+	ifile, ifilename, ofilename := setuptemppaths("week-time-", title)
+	defer func() {
+		ifile.Close()
+		os.Remove(ifilename)
+	}()
+
+	// Write the server data to the tmp file
+	for _, line := range data {
+		_, err = ifile.WriteString(line)
+		checkerror(err)
+	}
+
+	// And finally run the plotter against the file
 	runcommand("./plot_time.sh", title, ifilename, ofilename)
 }
 
 func monthlyhistorygraph(db *sql.DB, id int, title string) {
-	prefix := "month-time-"
-	ifile, ifilename, ofilename := setuptemppaths(prefix, title)
-	defer ifile.Close()
-
 	// Rows for server, newer then LAST_WEEK and only every 6th hour
 	rows, err := db.Query("select created,players "+
 		"from gameservers_serverhistory "+
@@ -147,32 +149,36 @@ func monthlyhistorygraph(db *sql.DB, id int, title string) {
 	var (
 		created time.Time
 		players int
-		gotrow  bool = false
+		data    []string
 	)
 	for rows.Next() {
 		err := rows.Scan(&created, &players)
 		checkerror(err)
-		_, err = ifile.WriteString(fmt.Sprintf("%d, %d\n", created.Unix(), players))
+		data = append(data, fmt.Sprintf("%d, %d\n", created.Unix(), players))
 		checkerror(err)
-		gotrow = true
 	}
 	err = rows.Err()
 	checkerror(err)
 
-	if gotrow {
-		// run the plotter against the tmp file
-		runcommand("./plot_time.sh", title, ifilename, ofilename)
+	if len(data) < 1 {
+		return
 	}
 
-	ifile.Close()
-	os.Remove(ifilename)
+	ifile, ifilename, ofilename := setuptemppaths("month-time-", title)
+	defer func() {
+		ifile.Close()
+		os.Remove(ifilename)
+	}()
+
+	for _, line := range data {
+		_, err = ifile.WriteString(line)
+		checkerror(err)
+	}
+
+	runcommand("./plot_time.sh", title, ifilename, ofilename)
 }
 
 func monthlyaveragedaygraph(db *sql.DB, id int, title string) {
-	prefix := "month-avg_day-"
-	ifile, ifilename, ofilename := setuptemppaths(prefix, title)
-	defer ifile.Close()
-
 	rows, err := db.Query("select "+
 		"strftime('%w', created) as weekday, avg(players) "+
 		"from gameservers_serverhistory "+
@@ -182,35 +188,39 @@ func monthlyaveragedaygraph(db *sql.DB, id int, title string) {
 	defer rows.Close()
 
 	var (
-		day         int
-		players     float64
-		avg_players [7]float64
-		gotrow      bool = false
+		day     int
+		players float64
+		data    []string
 	)
 
 	for rows.Next() {
 		err := rows.Scan(&day, &players)
 		checkerror(err)
-		avg_players[day] = players
-		gotrow = true
+		data = append(data, fmt.Sprintf("%s, %f\n", WEEK_DAYS[day], players))
 	}
 	err = rows.Err()
 	checkerror(err)
 
-	if gotrow {
-		// Write each day's average to the file
-		for i := 1; i <= 6; i++ {
-			_, err = ifile.WriteString(fmt.Sprintf("%s, %f\n", WEEK_DAYS[i], avg_players[i]))
-			checkerror(err)
-		}
-		// Oh hey! Look at what I found! It's sunday!!
-		_, err = ifile.WriteString(fmt.Sprintf("%s, %f\n", WEEK_DAYS[0], avg_players[0]))
-		checkerror(err)
-		// Fucking wankers and their stupid usage of sunday as the first day of week...
-
-		runcommand("./plot_bar.sh", title, ifilename, ofilename)
+	if len(data) < 1 {
+		return
 	}
 
-	ifile.Close()
-	os.Remove(ifilename)
+	// If Sunday (WEEK_DAYS[0]) is the first day in the list, we have to
+	// move it to the end. Fucking wankers and their weird start of week shit...
+	if strings.HasPrefix(data[0], WEEK_DAYS[0]) {
+		data = append(data[1:len(data)], data[0])
+	}
+
+	ifile, ifilename, ofilename := setuptemppaths("month-avg_day-", title)
+	defer func() {
+		ifile.Close()
+		os.Remove(ifilename)
+	}()
+
+	for _, line := range data {
+		_, err = ifile.WriteString(line)
+		checkerror(err)
+	}
+
+	runcommand("./plot_bar.sh", title, ifilename, ofilename)
 }
