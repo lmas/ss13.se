@@ -1,0 +1,37 @@
+{% extends "base_site.html" %}
+
+{% block title %}
+    Stats
+{% endblock %}
+
+{% block content %}
+
+    <h1>Statistics</h1>
+    Database was last updated <span class="bold" title="{{last_update|date:'r'}} GMT">
+        {{last_update|timesince}}
+    </span> ago.
+
+    <h3>Players</h3>
+    <p>There are currently <span class="bold">
+        {{total_players}} players
+    </span> online, spread out on <span class="bold">
+        {{servers_with_players}} active servers.
+    </span></p>
+
+    <h3>Servers</h3>
+    <p>In total there are <span class="bold">
+        {{servers_total}} servers
+    </span> in the database.</p>
+
+    <p>Within the last hour, <span class="glyphicon glyphicon-ok-sign"></span><span class="bold status_online">
+        {{servers_online}} ({% widthratio servers_online servers_total 100 %}%) servers</span>
+    has been updated.</p>
+
+    <p><span class="glyphicon glyphicon-question-sign"></span><span class="bold status_unknown">
+        {{servers_warning}} ({% widthratio servers_warning servers_total 100 %}%) servers</span>
+    has not been updated for over an hour and are currently in an unknown state.</p>
+
+    <p>Lasty there are <span class="glyphicon glyphicon-remove-sign"></span><span class="bold status_offline">
+        {{servers_offline}} ({% widthratio servers_offline servers_total 100 %}%) servers</span>
+    that has not been updated for over a day and will be removed automatically after a week of inactivity.</p>
+{% endblock %}
