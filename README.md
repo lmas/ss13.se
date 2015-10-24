@@ -6,6 +6,11 @@ http://www.ss13.se/
 A server hub dedicated to SS13 and possibly a better replacement for the default
 server page at [Byond](http://www.byond.com/games/exadv1/spacestation13).
 
+Status
+--------------------------------------------------------------------------------
+The site is currently being rewritten into Go.
+
+
 Features
 --------------------------------------------------------------------------------
 
