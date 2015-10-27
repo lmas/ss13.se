@@ -29,7 +29,7 @@ def poll_ss13_server(server, timeout=30):
         players = int(struct.unpack('f', response[5:9])[0])
         assert(players >= 0)
         return players, server
-    except (socket.timeout, AssertionError) as e:
+    except (socket.error, socket.timeout, AssertionError) as e:
         try:
             sock.close()
         except UnboundLocalError:
