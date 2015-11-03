@@ -1,0 +1,63 @@
+{{template "header" .}}
+    <table id="servers" class="table table-hover tablesorter">
+        <thead>
+            <tr>
+                <th><span></span></th>
+                <th><span title="Current online players">Cur.</span></th>
+                <th><span title="Average online players">Avg.</span></th>
+                <th><span>Server</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .servers}}
+                {{if .TimeIsGreater 24}}
+                <tr class="danger">
+                    <th>
+                        <span title="Offline: was not seen during the last week." class="glyphicon glyphicon-remove-sign"></span>
+                    </th>
+                {{else if .TimeIsGreater 1}}
+                <tr class="warning">
+                    <th>
+                        <span title="Unknown: was not seen during the last day." class="glyphicon glyphicon-question-sign"></span>
+                    </th>
+                {{ else }}
+                <tr>
+                    <th>
+                        <span title="Online: was seen during the last hour." class="glyphicon glyphicon-ok-sign"></span>
+                    </th>
+                {{end}}
+                    <th title="Current online players">{{.PlayersCurrent}}</th>
+                    <th title="Average online players">{{.PlayersAvg}}</th>
+                    <th>
+                        <a href="/server/{{.ID}}/{{.Title}}">
+                            {{.Title}}
+                        </a>
+                    </th>
+                </tr>
+            {{else}}
+                <tr>
+                    <th>?</th>
+                    <th>Sorry, no servers!</th>
+                <tr>
+            {{end}}
+        </tbody>
+    </table>
+
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.tablesorter.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            var settings = {
+                cssAsc: 'tablesorter-asc',
+                cssDesc: 'tablesorter-desc',
+                cssHeader: 'tablesorter-head',
+                headers: {
+                    0: {
+                        sorter: false, // Don't sort the status column
+                    },
+                },
+            };
+            $("#servers").tablesorter(settings);
+        });
+    </script>
+{{template "footer"}}
