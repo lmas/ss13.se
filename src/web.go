@@ -76,7 +76,7 @@ func (i *Instance) server_detail(c *gin.Context) {
 	}
 	weekdayavg := [7]weekday{
 		weekday{"Monday", s.PlayersMon},
-		weekday{"Thursday", s.PlayersTue},
+		weekday{"Tuesday", s.PlayersTue},
 		weekday{"Wednessday", s.PlayersWed},
 		weekday{"Thursday", s.PlayersThu},
 		weekday{"Friday", s.PlayersFri},
