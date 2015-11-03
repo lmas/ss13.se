@@ -79,3 +79,7 @@ type ServerPopulation struct {
 	ServerID  int `sql:"index;type:integer REFERENCES servers(id) ON DELETE CASCADE ON UPDATE CASCADE"`
 	Server    Server
 }
+
+// See https://github.com/jinzhu/gorm/issues/635 for why we have to manually add
+// in a raw REFERENCES statement here.
+// Hint: Foreign key creation is bugged when using gorm with sqlite.
