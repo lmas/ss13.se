@@ -76,6 +76,6 @@ type ServerPopulation struct {
 	ID        int
 	Timestamp time.Time
 	Players   int
-	ServerID  int
+	ServerID  int `sql:"index;type:integer REFERENCES servers(id) ON DELETE CASCADE ON UPDATE CASCADE"`
 	Server    Server
 }
