@@ -4,7 +4,14 @@
 A server hub dedicated to SS13 and possibly a better replacement for the default
 server page at [Byond](http://www.byond.com/games/exadv1/spacestation13).
 
-Features
+The source code has recently been rewritten from Python to Go, for better
+performance and stability, as well as cleaner structure and ease of use for
+the server host.
+
+Please note that the code is still in a experimental stage at this time and
+there is still a lot of work to be done before it's ready for production use.
+
+Features For Players
 --------------------------------------------------------------------------------
 
 - A friendlier server list, which is also sortable.
@@ -14,6 +21,11 @@ Features
 - Pages for private servers too, upon request.
 
 - Player count stats and graphs.
+
+Features For Web Host
+--------------------------------------------------------------------------------
+
+TODO
 
 Data Source
 --------------------------------------------------------------------------------
@@ -34,9 +46,7 @@ But then again it's just some silly numbers for a bunch of games.
 
 Source Code
 --------------------------------------------------------------------------------
-This is a open source project running on [Python](https://www.python.org/) and [Django](https://www.djangoproject.com/) (for the dynamic web
-stuff), a little [Go](https://golang.org/) (for some behind-the-scene scripting) and some [gnuplot](http://www.gnuplot.info/) (for some
-ugly but interesting graphs).
+This is a open source project running on [Go](https://golang.org/) and [jQuery](https://jquery.com/).
 
 The source code itself is hosted at [github.com](https://github.com/lmas/ss13_se) and is **open for any and all
 contributions**.
@@ -62,26 +72,50 @@ Todo
 
 - Better colors for the warning/offline server notices.
 
+- Better flags (set db file, servers.json file etc.).
+
+- Prevent locking the whole db when updating.
+
+- Update static files to newer versions.
+
+- Use unicode for server names in the templates.
+
+- Fix and clean up the tooltips in the server details template.
+
+- Use the same format for the verbose timestamps.
+
+- Check the licenses of external depencies and add credits.
+
+
 **New features**
+
+- A new name for the program and a fancy CLI banner
+
+- Tests (a must have for the scraper and poller)!?!
 
 - Show note about data source for each server (scraped/polled).
 
-- Rewrite the whole update script to go.
+- Show fancy web stats from the web server logs?
 
-- Show fancy web stats from the web server logs.
+- About page:
+    - Move all notices about Byond sources to this page.
+    - A way to contact me (reddit, github etc.).
+    - Info on how to request adding a new server to be polled.
 
-- stats page:
-    - time to run update
-    - log of recently added/removed servers
-    - server graphs
-    - player graphs + average
+- Stats page:
+    - Server graphs
+    - Player graphs + average
+    - Number of online/warn/offline servers.
+    - Total/average number of online players.
+    - Log of recently added/removed servers.
+    - The number of data points since start.
+    - Time since last update.
+    - Time to run update
 
 **Suggestions**
 
 - Frontpage of some sort?
 
-- Page to send in requests to add new private servers?
-
 - Player growth rate for each server (+/- compared to avg.)?
 
-- Use some kind of banner/logo?
+- Use some kind of logo?
