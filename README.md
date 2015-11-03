@@ -8,7 +8,7 @@ The source code has recently been rewritten from Python to Go, for better
 performance and stability, as well as cleaner structure and ease of use for
 the server host.
 
-Please note that the code is still in a experimental stage at this time and
+Please note that the code is still in a **experimental stage** at this time and
 there is still a lot of work to be done before it's ready for production use.
 
 Features For Players
@@ -113,6 +113,8 @@ Todo
     - Time to run update
 
 **Suggestions**
+
+- Live player count API and script to embed in external sites (https://github.com/lmas/ss13_se/issues/2)?
 
 - Frontpage of some sort?
 
