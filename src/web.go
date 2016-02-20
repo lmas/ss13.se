@@ -11,7 +11,10 @@ import (
 
 func (i *Instance) Init() {
 	InitSchema(i.DB)
+}
 
+func (i *Instance) Serve(addr string) error {
+	i.addr = addr
 	if i.Debug == false {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -45,10 +48,7 @@ func (i *Instance) Init() {
 
 	//i.router.GET("/stats", page_stats)
 	//i.router.GET("/about", page_about)
-}
 
-func (i *Instance) Serve(addr string) error {
-	i.addr = addr
 	return i.router.Run(i.addr)
 }
 
