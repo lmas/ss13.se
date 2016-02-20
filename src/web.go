@@ -11,6 +11,7 @@ import (
 
 func (i *Instance) Init() {
 	InitSchema(i.DB)
+	SetDebug(i.Debug) // TODO: get rid of this stupid debug thing
 }
 
 func (i *Instance) Serve(addr string) error {

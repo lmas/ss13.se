@@ -67,8 +67,6 @@ Todo
 
 - Update static files to newer versions.
 
-- Use unicode for server names in the templates.
-
 - Fix and clean up the tooltips in the server details template.
 
 - Use the same format for the verbose timestamps.

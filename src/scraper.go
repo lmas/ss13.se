@@ -2,10 +2,15 @@ package ss13
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
+
+	"golang.org/x/text/encoding/charmap"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -20,21 +25,26 @@ func ScrapePage() []*RawServerData {
 }
 
 func download_data() *goquery.Document {
-	var (
-		doc *goquery.Document
-		err error
-	)
+	var r io.Reader
 	if IsDebugging() {
 		fmt.Println("Scraper data source: ./dump.html")
 		f, err := os.Open("./tmp/dump.html")
 		check_error(err)
 		defer f.Close()
-		doc, err = goquery.NewDocumentFromReader(f)
-		check_error(err)
+		r = charmap.Windows1252.NewDecoder().Reader(f)
 	} else {
-		doc, err = goquery.NewDocument("http://www.byond.com/games/exadv1/spacestation13")
-		check_error(err)
+		client := &http.Client{
+			Timeout: time.Duration(1) * time.Minute,
+		}
+		resp, e := client.Get("http://www.byond.com/games/exadv1/spacestation13")
+		check_error(e)
+		defer resp.Body.Close()
+		// Yep, Byond serve's it's pages with Windows-1252 encoding...
+		r = charmap.Windows1252.NewDecoder().Reader(resp.Body)
+
 	}
+	doc, e := goquery.NewDocumentFromReader(r)
+	check_error(e)
 	return doc
 }
 
@@ -57,6 +67,7 @@ func parse_server_data(raw *goquery.Selection) *RawServerData {
 		t = t.Find("b").First()
 	}
 	title := strings.TrimSpace(t.Text())
+	//title = toUtf8([]byte(title))
 	title = strings.Replace(title, "\n", "", -1)
 	if len(title) < 1 {
 		// Yes, someone has made a public server without a server name at least once
