@@ -42,7 +42,7 @@ func GetOldServers(db *gorm.DB, ts time.Time) []*Server {
 }
 
 func RemoveOldServers(db *gorm.DB, ts time.Time) {
-	db.Where("last_updated < datetime(?, '-7 days')").Delete(Server{})
+	db.Where("last_updated < datetime(?, '-7 days')", ts).Delete(Server{})
 }
 
 func GetServerPopulation(db *gorm.DB, id int, d time.Duration) []*ServerPopulation {
