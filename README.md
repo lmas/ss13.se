@@ -16,19 +16,15 @@ Features For Players
 
 - A friendlier server list, which is also sortable.
 
+- Player count stats and graphs.
+
 - Dedicated pages for each public server, with more detailed info.
 
 - Pages for private servers too, upon request.
 
-- Player count stats and graphs.
-
-Features For Web Host
---------------------------------------------------------------------------------
-
-TODO
-
 Data Source
 --------------------------------------------------------------------------------
+
 The data used for most of the **public** servers is scraped from the [Byond](http://www.byond.com/games/exadv1/spacestation13) page.
 Relying on Byond means we're affected by their server downtime (no page, no data),
 but we will automatically discover any new public servers.
@@ -44,19 +40,14 @@ there's no way to guarantee that the calculated stats and graphs are 100% correc
 
 But then again it's just some silly numbers for a bunch of games.
 
-Source Code
---------------------------------------------------------------------------------
-This is a open source project running on [Go](https://golang.org/) and [jQuery](https://jquery.com/).
-
-The source code itself is hosted at [github.com](https://github.com/lmas/ss13_se) and is **open for any and all
-contributions**.
-
 License
 --------------------------------------------------------------------------------
+
 MIT License, see the LICENSE file.
 
 Credits
 --------------------------------------------------------------------------------
+
 - A. Svensson - Author and host.
 
 - [stuicey](https://www.reddit.com/user/stuicey) - Thanks for original idea and [first work](https://www.reddit.com/r/SS13/comments/2p6znr/hub_population_data/).
@@ -72,8 +63,6 @@ Todo
 
 - Better colors for the warning/offline server notices.
 
-- Better flags (set db file, servers.json file etc.).
-
 - Prevent locking the whole db when updating.
 
 - Update static files to newer versions.
@@ -84,18 +73,14 @@ Todo
 
 - Use the same format for the verbose timestamps.
 
-- Check the licenses of external depencies and add credits.
-
-
 **New features**
 
-- A new name for the program and a fancy CLI banner
-
-- Tests (a must have for the scraper and poller)!?!
+- Tests (a must have for the scraper and poller).
 
 - Show note about data source for each server (scraped/polled).
 
-- Show fancy web stats from the web server logs?
+- Index page:
+    - TODO
 
 - About page:
     - Move all notices about Byond sources to this page.
@@ -116,8 +101,5 @@ Todo
 
 - Live player count API and script to embed in external sites (https://github.com/lmas/ss13_se/issues/2)?
 
-- Frontpage of some sort?
-
 - Player growth rate for each server (+/- compared to avg.)?
 
-- Use some kind of logo?
