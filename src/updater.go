@@ -3,6 +3,8 @@ package ss13
 import (
 	"fmt"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 var updatedservers []string
@@ -20,6 +22,8 @@ type RawServerData struct {
 func (i *Instance) UpdateServers() {
 	reset()
 
+	tx := i.DB.Begin()
+
 	config, err := LoadConfig(SERVERS_CONFIG)
 	if err != nil {
 		fmt.Printf("Unable to load servers to poll: %s\n", err) // TODO
@@ -28,7 +32,7 @@ func (i *Instance) UpdateServers() {
 			fmt.Println("\nPolling servers...")
 		}
 		for _, s := range PollServers(config.PollServers, config.Timeout) {
-			i.update_server(s)
+			i.update_server(tx, s)
 		}
 	}
 
@@ -36,20 +40,22 @@ func (i *Instance) UpdateServers() {
 		fmt.Println("\nScraping servers...")
 	}
 	for _, s := range ScrapePage() {
-		i.update_server(s)
+		i.update_server(tx, s)
 	}
 
 	if i.Debug {
 		fmt.Println("\nRemoving old servers...")
 	}
-	RemoveOldServers(i.DB, Now())
+	RemoveOldServers(tx, Now())
 
 	if i.Debug {
 		fmt.Println("\nUpdating inactive servers...")
 	}
 	for _, s := range i.get_old_servers() {
-		i.update_server(s)
+		i.update_server(tx, s)
 	}
+
+	tx.Commit()
 }
 
 func reset() {
@@ -86,7 +92,7 @@ func (i *Instance) get_old_servers() []*RawServerData {
 	return tmp
 }
 
-func (i *Instance) update_server(s *RawServerData) {
+func (i *Instance) update_server(tx *gorm.DB, s *RawServerData) {
 	if isupdated(s.Title) {
 		return
 	}
@@ -96,11 +102,11 @@ func (i *Instance) update_server(s *RawServerData) {
 	}
 
 	// get server's db id (or create)
-	id := InsertOrSelect(i.DB, s)
+	id := InsertOrSelect(tx, s)
 
 	// create new player history point
-	AddServerPopulation(i.DB, id, s)
+	AddServerPopulation(tx, id, s)
 
 	// update server (urls and player stats)
-	UpdateServerStats(i.DB, id, s)
+	UpdateServerStats(tx, id, s)
 }
