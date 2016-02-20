@@ -1,100 +1,83 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"os"
 	"time"
 
+	"github.com/codegangsta/cli"
 	"github.com/lmas/ss13_se/src"
 )
 
-var (
-	// General flags
-	f_debug   = flag.Bool("debug", false, "Run in debug mode")
-	f_verbose = flag.Bool("verbose", false, "Show verbose messages")
-
-	// Flags for the run (webserver) command
-	f_addr = flag.String("addr", "127.0.0.1:8000", "Server's listening address")
-
-	// Flags for the update command
-	f_daemon  = flag.Bool("daemon", false, "Continuously update")
-	f_timeout = flag.Int64("timeout", 15, "Time (in minutes) between each update in daemon mode")
-)
-
-type Command struct {
-	Name   string
-	Desc   string
-	DoFunc func()
-}
-
-var commands = []Command{
-	// Main commands
-	Command{"serve", "Run a local web server.", doserve},
-	Command{"update", "Update the population stats.", doupdate},
-
-	// Misc. commands
-	Command{"version", "Show current version and exit.", doversion},
-}
-
 func main() {
-	flag.Parse()
-	ss13.SetDebug(*f_debug)
-
-	command := flag.Arg(0)
-	for _, a := range commands {
-		if command == a.Name {
-			a.DoFunc()
-			return
-		}
+	app := cli.NewApp()
+	app.Version = ss13.VERSION
+	app.Usage = "" // TODO
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "debug",
+			Usage: "Run in debug mode",
+		},
+		cli.BoolFlag{
+			Name:  "verbose",
+			Usage: "Show verbose messages",
+		},
+		cli.StringFlag{
+			Name:  "addr",
+			Usage: "Set the listen address for the web server",
+			Value: ":8000",
+		},
+		cli.BoolFlag{
+			Name:  "daemon",
+			Usage: "Continuously run when using the update command",
+		},
+		cli.IntFlag{
+			Name:  "timeout",
+			Usage: "Time (in minutes) between each update in daemon mode",
+			Value: 15,
+		},
+	}
+	app.Commands = []cli.Command{
+		{
+			Name:   "run",
+			Usage:  "Run the web server",
+			Action: run_server,
+		},
+		{
+			Name:   "update",
+			Usage:  "Update the server stats",
+			Action: update_stats,
+		},
 	}
 
-	dohelp()
+	app.Run(os.Args)
 }
 
-func dohelp() {
-	fmt.Println(`SS13 population stats server.
-
-Usage:
-	TODO_NAME [flags] command [arguments]
-
-Available commands:`)
-	for _, a := range commands {
-		fmt.Printf("\t%s\t%s\n", a.Name, a.Desc)
-	}
-	fmt.Println(`
-Run TODO_NAME -h to get a list of command line flags.
-`)
-}
-
-func doversion() {
-	fmt.Println("TODO: Use a fancy name, add a banner and set a version.")
-}
-
-func doserve() {
-	if *f_verbose {
-		fmt.Printf("Listening on %s.\n\n", *f_addr)
+func run_server(c *cli.Context) {
+	if c.GlobalBool("verbose") {
+		fmt.Printf("Listening on %s.\n\n", c.GlobalString("addr"))
 	}
 
 	instance := &ss13.Instance{
-		Debug: *f_debug,
+		Debug: c.GlobalBool("debug"),
 		DB:    ss13.OpenSqliteDB("new.db"), // TODO
 	}
 	instance.Init()
-	instance.Serve(*f_addr)
+	instance.Serve(c.GlobalString("addr"))
 }
 
-func doupdate() {
-	td := time.Duration(*f_timeout) * time.Minute
-	if *f_verbose {
-		if *f_daemon {
-			fmt.Printf("Running updates every %v minutes\n", *f_timeout)
+func update_stats(c *cli.Context) {
+	td := time.Duration(c.GlobalInt("timeout")) * time.Minute
+	if c.GlobalBool("verbose") {
+		if c.GlobalBool("daemon") {
+			fmt.Printf("Running updates every %v minutes\n", c.GlobalInt("timeout"))
 		} else {
 			fmt.Println("Updating...")
 		}
 	}
 
 	instance := &ss13.Instance{
-		Debug: *f_debug,
+		Debug: c.GlobalBool("debug"),
 		DB:    ss13.OpenSqliteDB("new.db"), // TODO
 	}
 	instance.Init()
@@ -103,11 +86,11 @@ func doupdate() {
 		start := time.Now()
 		instance.UpdateServers()
 		stop := time.Now()
-		if *f_verbose {
+		if c.GlobalBool("verbose") {
 			fmt.Printf("Update completed in %v\n", stop.Sub(start))
 		}
 
-		if !*f_daemon {
+		if !c.GlobalBool("daemon") {
 			return
 		}
 		fmt.Println("Next at ", time.Now().Add(td))
