@@ -3,8 +3,6 @@ package ss13
 import (
 	"fmt"
 	"time"
-
-	"github.com/jinzhu/gorm"
 )
 
 var updatedservers []string
@@ -22,7 +20,7 @@ type RawServerData struct {
 func (i *Instance) UpdateServers() {
 	reset()
 
-	tx := i.DB.Begin()
+	tx := i.DB.NewTransaction()
 
 	config, err := LoadConfig(SERVERS_CONFIG)
 	if err != nil {
@@ -46,7 +44,7 @@ func (i *Instance) UpdateServers() {
 	if i.Debug {
 		fmt.Println("\nRemoving old servers...")
 	}
-	RemoveOldServers(tx, Now())
+	tx.RemoveOldServers(Now())
 
 	if i.Debug {
 		fmt.Println("\nUpdating inactive servers...")
@@ -79,7 +77,7 @@ func isupdated(title string) bool {
 
 func (i *Instance) get_old_servers() []*RawServerData {
 	var tmp []*RawServerData
-	for _, old := range GetOldServers(i.DB, Now()) {
+	for _, old := range i.DB.GetOldServers(Now()) {
 		s := RawServerData{
 			Title:     old.Title,
 			Game_url:  old.GameUrl,
@@ -92,7 +90,7 @@ func (i *Instance) get_old_servers() []*RawServerData {
 	return tmp
 }
 
-func (i *Instance) update_server(tx *gorm.DB, s *RawServerData) {
+func (i *Instance) update_server(tx *DB, s *RawServerData) {
 	if isupdated(s.Title) {
 		return
 	}
@@ -102,11 +100,11 @@ func (i *Instance) update_server(tx *gorm.DB, s *RawServerData) {
 	}
 
 	// get server's db id (or create)
-	id := InsertOrSelect(tx, s)
+	id := tx.InsertOrSelect(s)
 
 	// create new player history point
-	AddServerPopulation(tx, id, s)
+	tx.AddServerPopulation(id, s)
 
 	// update server (urls and player stats)
-	UpdateServerStats(tx, id, s)
+	tx.UpdateServerStats(id, s)
 }

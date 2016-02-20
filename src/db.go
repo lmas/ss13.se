@@ -9,25 +9,33 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func OpenSqliteDB(args ...interface{}) *gorm.DB {
+type DB struct {
+	*gorm.DB
+}
+
+func OpenSqliteDB(args ...interface{}) *DB {
 	var e error
 	db, e := gorm.Open("sqlite3", args...)
 	check_error(e)
-	return &db
+	return &DB{&db}
 }
 
-func InitSchema(db *gorm.DB) {
+func (db *DB) InitSchema() {
 	db.AutoMigrate(&Server{})
 	db.AutoMigrate(&ServerPopulation{})
 }
 
-func AllServers(db *gorm.DB) []*Server {
+func (db *DB) NewTransaction() *DB {
+	return &DB{db.Begin()}
+}
+
+func (db *DB) AllServers() []*Server {
 	var tmp []*Server
 	db.Order("players_current desc, last_updated desc, title").Find(&tmp)
 	return tmp
 }
 
-func GetServer(db *gorm.DB, id int) (*Server, error) {
+func (db *DB) GetServer(id int) (*Server, error) {
 	var tmp Server
 	if db.First(&tmp, id).RecordNotFound() {
 		return nil, fmt.Errorf("Server not found")
@@ -35,24 +43,24 @@ func GetServer(db *gorm.DB, id int) (*Server, error) {
 	return &tmp, nil
 }
 
-func GetOldServers(db *gorm.DB, ts time.Time) []*Server {
+func (db *DB) GetOldServers(ts time.Time) []*Server {
 	var tmp []*Server
 	db.Where("last_updated < ?", ts).Find(&tmp)
 	return tmp
 }
 
-func RemoveOldServers(db *gorm.DB, ts time.Time) {
+func (db *DB) RemoveOldServers(ts time.Time) {
 	db.Where("last_updated < datetime(?, '-7 days')", ts).Delete(Server{})
 }
 
-func GetServerPopulation(db *gorm.DB, id int, d time.Duration) []*ServerPopulation {
+func (db *DB) GetServerPopulation(id int, d time.Duration) []*ServerPopulation {
 	var tmp []*ServerPopulation
 	t := time.Now().Add(-d)
 	db.Order("timestamp desc, server_id").Where("server_id = ? and timestamp > ?", id, t).Find(&tmp)
 	return tmp
 }
 
-func InsertOrSelect(db *gorm.DB, s *RawServerData) int {
+func (db *DB) InsertOrSelect(s *RawServerData) int {
 	var tmp Server
 	newserver := Server{
 		LastUpdated:    s.Timestamp,
@@ -68,7 +76,7 @@ func InsertOrSelect(db *gorm.DB, s *RawServerData) int {
 	return tmp.ID
 }
 
-func AddServerPopulation(db *gorm.DB, id int, s *RawServerData) {
+func (db *DB) AddServerPopulation(id int, s *RawServerData) {
 	var tmp Server
 	db.Where("id = ?", id).First(&tmp)
 	pop := ServerPopulation{
@@ -79,7 +87,7 @@ func AddServerPopulation(db *gorm.DB, id int, s *RawServerData) {
 	db.Create(&pop)
 }
 
-func UpdateServerStats(db *gorm.DB, id int, s *RawServerData) {
+func (db *DB) UpdateServerStats(id int, s *RawServerData) {
 	var tmp Server
 
 	period := Now().Add(-time.Duration(30*24) * time.Hour)

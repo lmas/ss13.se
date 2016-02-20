@@ -10,7 +10,7 @@ import (
 )
 
 func (i *Instance) Init() {
-	InitSchema(i.DB)
+	i.DB.InitSchema()
 	SetDebug(i.Debug) // TODO: get rid of this stupid debug thing
 }
 
@@ -54,7 +54,7 @@ func (i *Instance) Serve(addr string) error {
 }
 
 func (i *Instance) server_index(c *gin.Context) {
-	servers := AllServers(i.DB)
+	servers := i.DB.AllServers()
 	c.HTML(http.StatusOK, "server_index.html", gin.H{
 		"pagetitle": "Index",
 		"servers":   servers,
@@ -64,7 +64,7 @@ func (i *Instance) server_index(c *gin.Context) {
 func (i *Instance) server_detail(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("server_id"), 10, 0)
 	check_error(err)
-	s, err := GetServer(i.DB, int(id))
+	s, err := i.DB.GetServer(int(id))
 	if err != nil {
 		// TODO
 		//c.HTML(http.StatusNotFound, "error_404.html", nil)
@@ -87,8 +87,8 @@ func (i *Instance) server_detail(c *gin.Context) {
 	c.HTML(http.StatusOK, "server_detail.html", gin.H{
 		"pagetitle":    s.Title,
 		"server":       s,
-		"weekhistory":  GetServerPopulation(i.DB, int(id), time.Duration(7*24+12)*time.Hour),
-		"monthhistory": GetServerPopulation(i.DB, int(id), time.Duration(31*24)*time.Hour),
+		"weekhistory":  i.DB.GetServerPopulation(int(id), time.Duration(7*24+12)*time.Hour),
+		"monthhistory": i.DB.GetServerPopulation(int(id), time.Duration(31*24)*time.Hour),
 		"weekdayavg":   weekdayavg,
 	})
 }

@@ -5,13 +5,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 type Instance struct {
 	// Settings required by the user.
 	Debug bool
-	DB    *gorm.DB
+	DB    *DB
 
 	// Internal stuff
 	addr   string
