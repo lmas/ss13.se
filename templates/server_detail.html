@@ -19,9 +19,9 @@
     <p id="server_status" class="status_online">
         <span title="Online: was seen during the last hour." class="glyphicon glyphicon-ok-sign"></span>
         {{end}}
-        Last seen <span class="bold" title="{{.server.Timestamp}}">
-            {{.server.TimeSince}}
-        </span>ago.
+        <span id="timestamp" onmouseover="timestamp_tooltip({{.server.Timestamp}})" onmouseout="hide_tooltip()">
+            Last seen <span class="bold">{{.server.TimeSince}}</span> ago.
+        </span>
     </p>
 
     <h3>Players</h3>
@@ -53,6 +53,7 @@
     <div id="weekdayavg"></div>
     <div id="tooltip"></div>
 
+    <script type="text/javascript" src="/static/js/utils.js"></script>
     <script type="text/javascript" src="/static/js/jquery.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery.flot.js"></script>
     <script type="text/javascript" src="/static/js/jquery.flot.time.js"></script>
@@ -113,43 +114,9 @@
                 },
             });
 
-            $("#weekhistory").bind("plothover", function (event, pos, item) {
-                if (item) {
-                    var time = item.datapoint[0];
-                    var players = item.datapoint[1];
-                    var timestamp = new Date(time).toString();
-                    $("#tooltip")
-                        .html(players + " players at " + timestamp)
-                        .css({top: item.pageY+5, left: item.pageX+5})
-                        .fadeIn(200);
-                } else {
-                    $("#tooltip").hide();
-                }
-            });
-            $("#monthhistory").bind("plothover", function (event, pos, item) {
-                if (item) {
-                    var time = item.datapoint[0];
-                    var players = item.datapoint[1];
-                    var timestamp = new Date(time).toString();
-                    $("#tooltip")
-                        .html(players + " players at " + timestamp)
-                        .css({top: item.pageY+5, left: item.pageX+5})
-                        .fadeIn(200);
-                } else {
-                    $("#tooltip").hide();
-                }
-            });
-            $("#weekdayavg").bind("plothover", function (event, pos, item) {
-                if (item) {
-                    var players = item.datapoint[1];
-                    $("#tooltip")
-                        .html(players + " players")
-                        .css({top: item.pageY+5, left: item.pageX+5})
-                        .fadeIn(200);
-                } else {
-                    $("#tooltip").hide();
-                }
-            });
+            $("#weekhistory").bind("plothover", players_at_tooltip);
+            $("#monthhistory").bind("plothover", players_at_tooltip);
+            $("#weekdayavg").bind("plothover", players_tooltip);
         });
     </script>
 {{template "footer"}}
