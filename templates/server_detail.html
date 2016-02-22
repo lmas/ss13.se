@@ -61,7 +61,7 @@
     <script type="text/javascript">
         $(function() {
             var data = [
-                {{range .weekhistory}}[{{.Timestamp |inms}}, {{.Players}}], {{end}}
+                {{range .weekhistory}}[{{.Timestamp |inms}},{{.Players}}],{{end}}
             ];
             $.plot("#weekhistory", [data], {
                 xaxis: {
@@ -79,7 +79,7 @@
             });
 
             var data = [
-                {{range .monthhistory}}[{{.Timestamp |inms}}, {{.Players}}], {{end}}
+                {{range .monthhistory}}[{{.Timestamp |inms}},{{.Players}}],{{end}}
             ];
             $.plot("#monthhistory", [data], {
                 xaxis: {
@@ -97,7 +97,7 @@
             });
 
             var data= [
-            {{range .weekdayavg}}[{{.Day}}, {{.Players}}], {{end}}
+            {{range .weekdayavg}}[{{.Day}},{{.Players}}],{{end}}
             ];
             $.plot("#weekdayavg", [data], {
                 xaxis: {
