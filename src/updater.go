@@ -42,16 +42,16 @@ func (i *Instance) UpdateServers() {
 	}
 
 	if i.Debug {
-		fmt.Println("\nRemoving old servers...")
-	}
-	tx.RemoveOldServers(Now())
-
-	if i.Debug {
 		fmt.Println("\nUpdating inactive servers...")
 	}
 	for _, s := range i.get_old_servers() {
 		i.update_server(tx, s)
 	}
+
+	if i.Debug {
+		fmt.Println("\nRemoving old servers...")
+	}
+	tx.RemoveOldServers(Now())
 
 	tx.Commit()
 }
