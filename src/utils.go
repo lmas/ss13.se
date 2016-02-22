@@ -35,5 +35,5 @@ func ResetNow() {
 }
 
 func Now() time.Time {
-	return now
+	return now.UTC()
 }

@@ -47,7 +47,7 @@ func (s *Server) TimeIsGreater(hours int) bool {
 
 // Return a formatted string of LastUpdated.
 func (s *Server) Timestamp() string {
-	return s.LastUpdated.String()
+	return s.LastUpdated.Format("2006-01-02 15:04 MST")
 }
 
 // Return a fancy string duration since LastUpdated.
