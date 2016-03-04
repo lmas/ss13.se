@@ -29,7 +29,7 @@ func download_data() *goquery.Document {
 	if IsDebugging() {
 		fmt.Println("Scraper data source: ./dump.html")
 		f, err := os.Open("./tmp/dump.html")
-		check_error(err)
+		log_error(err)
 		defer f.Close()
 		r = charmap.Windows1252.NewDecoder().Reader(f)
 	} else {
@@ -37,14 +37,14 @@ func download_data() *goquery.Document {
 			Timeout: time.Duration(1) * time.Minute,
 		}
 		resp, e := client.Get("http://www.byond.com/games/exadv1/spacestation13")
-		check_error(e)
+		log_error(e)
 		defer resp.Body.Close()
 		// Yep, Byond serve's it's pages with Windows-1252 encoding...
 		r = charmap.Windows1252.NewDecoder().Reader(resp.Body)
 
 	}
 	doc, e := goquery.NewDocumentFromReader(r)
-	check_error(e)
+	log_error(e)
 	return doc
 }
 
@@ -89,7 +89,7 @@ func parse_server_data(raw *goquery.Selection) *RawServerData {
 	// than 2 there's multiple matches, which is fishy...
 	if len(ret) == 2 {
 		p, err := strconv.ParseInt(ret[1], 10, 0)
-		check_error(err)
+		log_error(err)
 		players = int(p)
 	}
 
