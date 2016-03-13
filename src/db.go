@@ -31,7 +31,7 @@ func (db *DB) NewTransaction() *DB {
 
 func (db *DB) AllServers() []*Server {
 	var tmp []*Server
-	db.Order("players_current desc, last_updated desc, title").Find(&tmp)
+	db.Order("players_current desc, players_avg desc, last_updated desc, title").Find(&tmp)
 	return tmp
 }
 
