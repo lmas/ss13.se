@@ -41,11 +41,11 @@ func (i *Instance) Serve(addr string) error {
 	// Setup all URLS
 	i.router.Static("/static", "./static")
 
-	i.router.GET("/", i.server_index)
+	i.router.GET("/", i.page_index)
 	i.router.GET("/error", i.page_error)
 
-	i.router.GET("/server/:server_id/*slug", i.server_detail)
-	i.router.GET("/server/:server_id", i.server_detail)
+	i.router.GET("/server/:server_id/*slug", i.page_server)
+	i.router.GET("/server/:server_id", i.page_server)
 
 	//i.router.GET("/stats", page_stats)
 	//i.router.GET("/about", page_about)
@@ -53,19 +53,19 @@ func (i *Instance) Serve(addr string) error {
 	return i.router.Run(i.addr)
 }
 
-func (i *Instance) server_index(c *gin.Context) {
+func (i *Instance) page_index(c *gin.Context) {
 	servers := i.DB.AllServers()
-	c.HTML(http.StatusOK, "server_index.html", gin.H{
+	c.HTML(http.StatusOK, "page_index.html", gin.H{
 		"pagetitle": "Index",
 		"servers":   servers,
 	})
 }
 
 func (i *Instance) page_error(c *gin.Context) {
-	c.HTML(http.StatusNotFound, "error_404.html", nil)
+	c.HTML(http.StatusNotFound, "page_404.html", nil)
 }
 
-func (i *Instance) server_detail(c *gin.Context) {
+func (i *Instance) page_server(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("server_id"), 10, 0)
 	check_error(err)
 	s, err := i.DB.GetServer(int(id))
@@ -86,7 +86,7 @@ func (i *Instance) server_detail(c *gin.Context) {
 		weekday{"Saturday", s.PlayersSat},
 		weekday{"Sunday", s.PlayersSun},
 	}
-	c.HTML(http.StatusOK, "server_detail.html", gin.H{
+	c.HTML(http.StatusOK, "page_server.html", gin.H{
 		"pagetitle":    s.Title,
 		"server":       s,
 		"weekhistory":  i.DB.GetServerPopulation(int(id), time.Duration(7*24+12)*time.Hour),
