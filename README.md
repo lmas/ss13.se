@@ -40,6 +40,21 @@ there's no way to guarantee that the calculated stats and graphs are 100% correc
 
 But then again it's just some silly numbers for a bunch of games.
 
+Add new private server
+--------------------------------------------------------------------------------
+
+If you would like to add your server to the private list, and accept being polled
+about 4 times an hour, please open a [new ticket](https://github.com/lmas/ss13_se/issues/new)
+on the issue tracker on github.
+
+Please provide the following info for your server and write it in your new ticket:
+
+    Title - The public title of your server.
+    Game URL - The publicly open address to the game server.
+    Site URL - The address to your server's web page, if you have one.
+
+See the file `servers.json` for examples.
+
 License
 --------------------------------------------------------------------------------
 
@@ -61,23 +76,13 @@ Todo
 
 - Better colors for the warning/offline server notices.
 
-- Prevent locking the whole db when updating.
-
 - Update static files to newer versions.
 
 **New features**
 
 - Tests (a must have for the scraper and poller).
 
-- Show note about data source for each server (scraped/polled).
-
-- Index page:
-    - TODO
-
-- About page:
-    - Move all notices about Byond sources to this page.
-    - A way to contact me (reddit, github etc.).
-    - Info on how to request adding a new server to be polled.
+- Dump bootstrap and make a new style.
 
 - Stats page:
     - Server graphs
