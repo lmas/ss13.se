@@ -10,10 +10,12 @@ var (
 	debugging bool = false
 )
 
-func log_error(err error) {
+func log_error(err error) bool {
 	if err != nil {
-		log.Panic("WARNING ", err)
+		log.Printf("WARNING: %s\n", err)
+		return true
 	}
+	return false
 }
 
 func check_error(err error) {
