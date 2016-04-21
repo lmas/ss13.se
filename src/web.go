@@ -21,6 +21,11 @@ func (i *Instance) Serve(addr string) error {
 
 	// TODO: replace Default with New and use custom logger and stuff?
 	i.router = gin.Default()
+	i.router.NoRoute(func() gin.HandlerFunc {
+		return func(c *gin.Context) {
+			c.HTML(http.StatusNotFound, "page_404.html", nil)
+		}
+	}())
 
 	// Load templates
 	funcmap := template.FuncMap{
@@ -42,7 +47,6 @@ func (i *Instance) Serve(addr string) error {
 	i.router.Static("/static", "./static")
 
 	i.router.GET("/", i.page_index)
-	i.router.GET("/error", i.page_error)
 
 	i.router.GET("/server/:server_id/*slug", i.page_server)
 	i.router.GET("/server/:server_id", i.page_server)
@@ -61,16 +65,16 @@ func (i *Instance) page_index(c *gin.Context) {
 	})
 }
 
-func (i *Instance) page_error(c *gin.Context) {
-	c.HTML(http.StatusNotFound, "page_404.html", nil)
-}
-
 func (i *Instance) page_server(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("server_id"), 10, 0)
-	check_error(err)
+	if err != nil {
+		c.HTML(http.StatusNotFound, "page_404.html", nil)
+		return
+	}
+
 	s, err := i.DB.GetServer(int(id))
 	if err != nil {
-		c.Redirect(http.StatusTemporaryRedirect, "/error")
+		c.HTML(http.StatusNotFound, "page_404.html", nil)
 		return
 	}
 	type weekday struct {
