@@ -52,7 +52,7 @@ func (i *Instance) Serve(addr string) error {
 	i.router.GET("/server/:server_id", i.page_server)
 
 	//i.router.GET("/stats", page_stats)
-	//i.router.GET("/about", page_about)
+	i.router.GET("/about", i.page_about)
 
 	return i.router.Run(i.addr)
 }
@@ -63,6 +63,10 @@ func (i *Instance) page_index(c *gin.Context) {
 		"pagetitle": "Index",
 		"servers":   servers,
 	})
+}
+
+func (i *Instance) page_about(c *gin.Context) {
+	c.HTML(http.StatusOK, "page_about.html", nil)
 }
 
 func (i *Instance) page_server(c *gin.Context) {
