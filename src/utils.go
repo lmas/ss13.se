@@ -6,8 +6,7 @@ import (
 )
 
 var (
-	now            = time.Now()
-	debugging bool = false
+	now = time.Now()
 )
 
 func log_error(err error) bool {
@@ -22,14 +21,6 @@ func check_error(err error) {
 	if err != nil {
 		log.Fatal("ERROR ", err)
 	}
-}
-
-func SetDebug(val bool) {
-	debugging = val
-}
-
-func IsDebugging() bool {
-	return debugging
 }
 
 func ResetNow() {

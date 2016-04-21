@@ -19,8 +19,8 @@ var (
 	RE_PLAYERS = regexp.MustCompile(`Logged in: (\d+) player`)
 )
 
-func ScrapePage() ([]*RawServerData, error) {
-	data, err := download_data()
+func (i *Instance) ScrapePage() ([]*RawServerData, error) {
+	data, err := download_data(i.Debug)
 	if err != nil {
 		return nil, err
 	}
@@ -32,10 +32,9 @@ func ScrapePage() ([]*RawServerData, error) {
 	return tmp, nil
 }
 
-func download_data() (*goquery.Document, error) {
+func download_data(debug bool) (*goquery.Document, error) {
 	var r io.Reader
-	if IsDebugging() {
-		fmt.Println("Scraper data source: ./dump.html")
+	if debug {
 		f, err := os.Open("./tmp/dump.html")
 		if err != nil {
 			return nil, err

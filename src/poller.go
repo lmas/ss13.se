@@ -57,7 +57,7 @@ func poll_players(host string, timeout int) (int, error) {
 	return int(players), nil
 }
 
-func PollServers(servers []ServerConfig, timeout int) ([]*RawServerData, error) {
+func (i *Instance) PollServers(servers []ServerConfig, timeout int) ([]*RawServerData, error) {
 	var wg sync.WaitGroup
 	var tmp []*RawServerData
 	for _, s := range servers {
