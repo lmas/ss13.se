@@ -19,7 +19,7 @@ func (i *Instance) Serve(addr string) error {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// TODO: replace Default with New and use custom logger and stuff
+	// TODO: replace Default with New and use custom logger and stuff?
 	i.router = gin.Default()
 
 	// Load templates
@@ -42,6 +42,7 @@ func (i *Instance) Serve(addr string) error {
 	i.router.Static("/static", "./static")
 
 	i.router.GET("/", i.server_index)
+	i.router.GET("/error", i.page_error)
 
 	i.router.GET("/server/:server_id/*slug", i.server_detail)
 	i.router.GET("/server/:server_id", i.server_detail)
@@ -60,14 +61,16 @@ func (i *Instance) server_index(c *gin.Context) {
 	})
 }
 
+func (i *Instance) page_error(c *gin.Context) {
+	c.HTML(http.StatusNotFound, "error_404.html", nil)
+}
+
 func (i *Instance) server_detail(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("server_id"), 10, 0)
 	check_error(err)
 	s, err := i.DB.GetServer(int(id))
 	if err != nil {
-		// TODO
-		//c.HTML(http.StatusNotFound, "error_404.html", nil)
-		c.String(http.StatusNotFound, "Server not found")
+		c.Redirect(http.StatusTemporaryRedirect, "/error")
 		return
 	}
 	type weekday struct {
