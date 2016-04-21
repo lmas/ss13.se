@@ -23,22 +23,26 @@ func (i *Instance) UpdateServers() {
 	tx := i.DB.NewTransaction()
 
 	config, err := LoadConfig(SERVERS_CONFIG)
-	if err != nil {
-		fmt.Printf("Unable to load servers to poll: %s\n", err) // TODO
-	} else {
+	if !log_error(err) {
 		if i.Debug {
 			fmt.Println("\nPolling servers...")
 		}
-		for _, s := range PollServers(config.PollServers, config.Timeout) {
-			i.update_server(tx, s)
+		polled, err := PollServers(config.PollServers, config.Timeout)
+		if !log_error(err) {
+			for _, s := range polled {
+				i.update_server(tx, s)
+			}
 		}
 	}
 
 	if i.Debug {
 		fmt.Println("\nScraping servers...")
 	}
-	for _, s := range ScrapePage() {
-		i.update_server(tx, s)
+	scraped, err := ScrapePage()
+	if !log_error(err) {
+		for _, s := range scraped {
+			i.update_server(tx, s)
+		}
 	}
 
 	if i.Debug {

@@ -19,48 +19,62 @@ var (
 	RE_PLAYERS = regexp.MustCompile(`Logged in: (\d+) player`)
 )
 
-// TODO: return errors!
-func ScrapePage() []*RawServerData {
-	data := download_data()
-	return parse_data(data)
+func ScrapePage() ([]*RawServerData, error) {
+	data, err := download_data()
+	if err != nil {
+		return nil, err
+	}
+
+	tmp, err := parse_data(data)
+	if err != nil {
+		return nil, err
+	}
+	return tmp, nil
 }
 
-func download_data() *goquery.Document {
+func download_data() (*goquery.Document, error) {
 	var r io.Reader
 	if IsDebugging() {
 		fmt.Println("Scraper data source: ./dump.html")
 		f, err := os.Open("./tmp/dump.html")
-		log_error(err)
+		if err != nil {
+			return nil, err
+		}
 		defer f.Close()
 		r = charmap.Windows1252.NewDecoder().Reader(f)
 	} else {
 		client := &http.Client{
 			Timeout: time.Duration(1) * time.Minute,
 		}
-		resp, e := client.Get("http://www.byond.com/games/exadv1/spacestation13")
-		log_error(e)
+		resp, err := client.Get("http://www.byond.com/games/exadv1/spacestation13")
+		if err != nil {
+			return nil, err
+		}
 		defer resp.Body.Close()
 		// Yep, Byond serve's it's pages with Windows-1252 encoding...
 		r = charmap.Windows1252.NewDecoder().Reader(resp.Body)
-
 	}
-	doc, e := goquery.NewDocumentFromReader(r)
-	log_error(e)
-	return doc
+	doc, err := goquery.NewDocumentFromReader(r)
+	if err != nil {
+		return nil, err
+	}
+	return doc, nil
 }
 
-func parse_data(data *goquery.Document) []*RawServerData {
+func parse_data(data *goquery.Document) ([]*RawServerData, error) {
 	var servers []*RawServerData
 	data.Find(".live_game_entry").Each(func(i int, s *goquery.Selection) {
-		tmp := parse_server_data(s)
-		if tmp != nil {
-			servers = append(servers, tmp)
+		tmp, err := parse_server_data(s)
+		if !log_error(err) {
+			if tmp != nil {
+				servers = append(servers, tmp)
+			}
 		}
 	})
-	return servers
+	return servers, nil
 }
 
-func parse_server_data(raw *goquery.Selection) *RawServerData {
+func parse_server_data(raw *goquery.Selection) (*RawServerData, error) {
 	s := raw.Find(".live_game_status")
 
 	t := s.Find("b").First()
@@ -72,7 +86,7 @@ func parse_server_data(raw *goquery.Selection) *RawServerData {
 	title = strings.Replace(title, "\n", "", -1)
 	if len(title) < 1 {
 		// Yes, someone has made a public server without a server name at least once
-		return nil
+		return nil, fmt.Errorf("Empty name for server")
 	}
 
 	game_url := s.Find("span.smaller").Find("nobr").Text()
@@ -90,9 +104,11 @@ func parse_server_data(raw *goquery.Selection) *RawServerData {
 	// than 2 there's multiple matches, which is fishy...
 	if len(ret) == 2 {
 		p, err := strconv.ParseInt(ret[1], 10, 0)
-		log_error(err)
+		if err != nil {
+			return nil, err
+		}
 		players = int(p)
 	}
 
-	return &RawServerData{title, game_url, site_url, players, Now()}
+	return &RawServerData{title, game_url, site_url, players, Now()}, nil
 }
