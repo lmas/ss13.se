@@ -19,6 +19,7 @@ var (
 	RE_PLAYERS = regexp.MustCompile(`Logged in: (\d+) player`)
 )
 
+// TODO: return errors!
 func ScrapePage() []*RawServerData {
 	data := download_data()
 	return parse_data(data)
