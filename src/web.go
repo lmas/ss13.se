@@ -3,6 +3,7 @@ package ss13
 import (
 	"html/template"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -27,7 +28,7 @@ func (i *Instance) Serve(addr string) error {
 		}
 	}())
 
-	// Load templates
+	// Custom template functions
 	funcmap := template.FuncMap{
 		// safe_href let's us use URLs with custom protocols
 		"safe_href": func(s string) template.HTMLAttr {
@@ -40,7 +41,17 @@ func (i *Instance) Serve(addr string) error {
 			return time.Now().Year()
 		},
 	}
-	tmpl := template.Must(template.New("ServerTemplates").Funcs(funcmap).ParseGlob("templates/*"))
+
+	// Load templates
+	tmpl := template.New("AllTemplates").Funcs(funcmap)
+	tmplfiles, err := AssetDir("templates/")
+	if err != nil {
+		panic(err)
+	}
+	for p, b := range tmplfiles {
+		name := filepath.Base(p)
+		template.Must(tmpl.New(name).Parse(string(b)))
+	}
 	i.router.SetHTMLTemplate(tmpl)
 
 	// Setup all URLS
