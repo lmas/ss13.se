@@ -74,7 +74,8 @@ func run_server(c *cli.Context) {
 		PrivServersFile: c.GlobalString("private-servers"),
 	}
 	instance.Init()
-	instance.Serve(c.GlobalString("addr"))
+	e := instance.Serve(c.GlobalString("addr"))
+	ss13.LogError(e)
 }
 
 func update_stats(c *cli.Context) {
