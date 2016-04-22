@@ -9,7 +9,7 @@ var (
 	now = time.Now()
 )
 
-func log_error(err error) bool {
+func LogError(err error) bool {
 	if err != nil {
 		log.Printf("WARNING: %s\n", err)
 		return true

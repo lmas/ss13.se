@@ -21,12 +21,12 @@ func (i *Instance) UpdateServers() {
 	tx := i.DB.NewTransaction()
 
 	config, err := LoadConfig(i.PrivServersFile)
-	if !log_error(err) {
+	if !LogError(err) {
 		if i.Debug {
 			fmt.Println("\nPolling servers...")
 		}
 		polled, err := i.PollServers(config.PollServers, config.Timeout)
-		if !log_error(err) {
+		if !LogError(err) {
 			for _, s := range polled {
 				i.update_server(tx, s)
 			}
@@ -37,7 +37,7 @@ func (i *Instance) UpdateServers() {
 		fmt.Println("\nScraping servers...")
 	}
 	scraped, err := i.ScrapePage()
-	if !log_error(err) {
+	if !LogError(err) {
 		for _, s := range scraped {
 			i.update_server(tx, s)
 		}

@@ -65,7 +65,7 @@ func (i *Instance) PollServers(servers []ServerConfig, timeout int) ([]*RawServe
 		go func(s ServerConfig) {
 			defer wg.Done()
 			players, err := poll_players(s.GameUrl, timeout)
-			if log_error(err) {
+			if LogError(err) {
 				return
 			}
 			gameurl := fmt.Sprintf("byond://%s", s.GameUrl)
