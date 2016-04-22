@@ -17,12 +17,6 @@ func LogError(err error) bool {
 	return false
 }
 
-func check_error(err error) {
-	if err != nil {
-		log.Fatal("ERROR ", err)
-	}
-}
-
 func ResetNow() {
 	now = time.Now()
 }

@@ -68,13 +68,18 @@ func run_server(c *cli.Context) {
 		fmt.Printf("Listening on %s.\n\n", c.GlobalString("addr"))
 	}
 
+	db, e := ss13.OpenSqliteDB(c.GlobalString("database"))
+	if ss13.LogError(e) {
+		return
+	}
+
 	instance := &ss13.Instance{
 		Debug:           c.GlobalBool("debug"),
-		DB:              ss13.OpenSqliteDB(c.GlobalString("database")),
+		DB:              db,
 		PrivServersFile: c.GlobalString("private-servers"),
 	}
 	instance.Init()
-	e := instance.Serve(c.GlobalString("addr"))
+	e = instance.Serve(c.GlobalString("addr"))
 	ss13.LogError(e)
 }
 
@@ -88,9 +93,14 @@ func update_stats(c *cli.Context) {
 		}
 	}
 
+	db, e := ss13.OpenSqliteDB(c.GlobalString("database"))
+	if ss13.LogError(e) {
+		return
+	}
+
 	instance := &ss13.Instance{
 		Debug:           c.GlobalBool("debug"),
-		DB:              ss13.OpenSqliteDB(c.GlobalString("database")),
+		DB:              db,
 		PrivServersFile: c.GlobalString("private-servers"),
 	}
 	instance.Init()

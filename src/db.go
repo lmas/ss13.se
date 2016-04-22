@@ -13,11 +13,12 @@ type DB struct {
 	*gorm.DB
 }
 
-func OpenSqliteDB(args ...interface{}) *DB {
-	var e error
+func OpenSqliteDB(args ...interface{}) (*DB, error) {
 	db, e := gorm.Open("sqlite3", args...)
-	check_error(e)
-	return &DB{&db}
+	if LogError(e) {
+		return nil, e
+	}
+	return &DB{&db}, nil
 }
 
 func (db *DB) InitSchema() {
