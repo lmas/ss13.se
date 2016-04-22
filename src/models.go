@@ -9,8 +9,9 @@ import (
 
 type Instance struct {
 	// Settings required by the user.
-	Debug bool
-	DB    *DB
+	Debug           bool
+	DB              *DB
+	PrivServersFile string
 
 	// Internal stuff
 	addr   string

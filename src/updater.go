@@ -7,8 +7,6 @@ import (
 
 var updatedservers []string
 
-const SERVERS_CONFIG = "./servers.json" // TODO
-
 type RawServerData struct {
 	Title     string
 	Game_url  string
@@ -22,7 +20,7 @@ func (i *Instance) UpdateServers() {
 
 	tx := i.DB.NewTransaction()
 
-	config, err := LoadConfig(SERVERS_CONFIG)
+	config, err := LoadConfig(i.PrivServersFile)
 	if !log_error(err) {
 		if i.Debug {
 			fmt.Println("\nPolling servers...")

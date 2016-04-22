@@ -36,6 +36,16 @@ func main() {
 			Usage: "Time (in minutes) between each update in daemon mode",
 			Value: 15,
 		},
+		cli.StringFlag{
+			Name:  "private-servers",
+			Usage: "JSON file with a list of private servers to poll",
+			Value: "./servers.json",
+		},
+		cli.StringFlag{
+			Name:  "database",
+			Usage: "Database file",
+			Value: "./ss13.db",
+		},
 	}
 	app.Commands = []cli.Command{
 		{
@@ -59,8 +69,9 @@ func run_server(c *cli.Context) {
 	}
 
 	instance := &ss13.Instance{
-		Debug: c.GlobalBool("debug"),
-		DB:    ss13.OpenSqliteDB("new.db"), // TODO
+		Debug:           c.GlobalBool("debug"),
+		DB:              ss13.OpenSqliteDB(c.GlobalString("database")),
+		PrivServersFile: c.GlobalString("private-servers"),
 	}
 	instance.Init()
 	instance.Serve(c.GlobalString("addr"))
@@ -77,8 +88,9 @@ func update_stats(c *cli.Context) {
 	}
 
 	instance := &ss13.Instance{
-		Debug: c.GlobalBool("debug"),
-		DB:    ss13.OpenSqliteDB("new.db"), // TODO
+		Debug:           c.GlobalBool("debug"),
+		DB:              ss13.OpenSqliteDB(c.GlobalString("database")),
+		PrivServersFile: c.GlobalString("private-servers"),
 	}
 	instance.Init()
 
