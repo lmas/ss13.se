@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lmas/ss13_se/src/assettemplates"
 )
 
 func (i *Instance) Init() {
@@ -44,7 +45,7 @@ func (i *Instance) Serve(addr string) error {
 
 	// Load templates
 	tmpl := template.New("AllTemplates").Funcs(funcmap)
-	tmplfiles, err := AssetDir("templates/")
+	tmplfiles, err := assettemplates.AssetDir("templates/")
 	if err != nil {
 		panic(err)
 	}
