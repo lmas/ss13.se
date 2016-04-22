@@ -12,7 +12,7 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Version = ss13.VERSION
-	app.Usage = "" // TODO
+	app.Usage = "Web server for showing stats for SS13 servers."
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "debug",
