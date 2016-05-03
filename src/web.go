@@ -1,13 +1,16 @@
 package ss13
 
 import (
+	"fmt"
 	"html/template"
+	"mime"
 	"net/http"
 	"path/filepath"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lmas/ss13_se/src/assetstatic"
 	"github.com/lmas/ss13_se/src/assettemplates"
 )
 
@@ -55,9 +58,22 @@ func (i *Instance) Serve(addr string) error {
 	}
 	i.router.SetHTMLTemplate(tmpl)
 
-	// Setup all URLS
-	i.router.Static("/static", "./static")
+	// Load static files
+	staticfiles, e := assetstatic.AssetDir("static/")
+	if e != nil {
+		panic(e)
+	}
+	for p, _ := range staticfiles {
+		ctype := mime.TypeByExtension(filepath.Ext(p))
+		// Need to make a local copy of the var or else all files will
+		// return the content of a single file (quirk with range).
+		b := staticfiles[p]
+		i.router.GET(fmt.Sprintf("/%s", p), func(c *gin.Context) {
+			c.Data(http.StatusOK, ctype, b)
+		})
+	}
 
+	// Setup all URLS
 	i.router.GET("/", i.page_index)
 
 	i.router.GET("/server/:server_id/*slug", i.page_server)
