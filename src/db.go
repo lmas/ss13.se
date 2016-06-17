@@ -18,7 +18,7 @@ func OpenSqliteDB(args ...interface{}) (*DB, error) {
 	if LogError(e) {
 		return nil, e
 	}
-	return &DB{&db}, nil
+	return &DB{db}, nil
 }
 
 func (db *DB) InitSchema() {
