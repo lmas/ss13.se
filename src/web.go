@@ -82,6 +82,8 @@ func (i *Instance) Serve(addr string) error {
 	//i.router.GET("/stats", page_stats)
 	i.router.GET("/about", i.page_about)
 
+	i.router.GET("/r/ver", i.page_apollo)
+
 	return i.router.Run(i.addr)
 }
 
@@ -129,4 +131,9 @@ func (i *Instance) page_server(c *gin.Context) {
 		"monthhistory": i.DB.GetServerPopulation(int(id), time.Duration(31*24)*time.Hour),
 		"weekdayavg":   weekdayavg,
 	})
+}
+
+func (i *Instance) page_apollo(c *gin.Context) {
+	// Go away, this it not an easter egg.
+	c.Redirect(http.StatusFound, "byond://192.95.55.67:3333")
 }
