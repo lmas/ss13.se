@@ -2,7 +2,11 @@ package ss13
 
 import "time"
 
-var updatedServers []string
+var now = time.Now()
+
+func Now() time.Time {
+	return now.UTC()
+}
 
 type RawServerData struct {
 	Title     string
@@ -13,12 +17,18 @@ type RawServerData struct {
 }
 
 func (i *Instance) UpdateServers() {
-	reset()
-	tx := i.db.NewTransaction()
+	now = time.Now()
+	servers := make(map[string]*RawServerData)
+	addServer := func(s *RawServerData) {
+		if _, exists := servers[s.Title]; exists {
+			return
+		}
+		servers[s.Title] = s
+	}
 
 	polled := i.PollServers(i.Config.Servers, i.Config.UpdateTimeout)
 	for _, s := range polled {
-		i.updateServer(tx, s)
+		addServer(s)
 	}
 
 	scraped, e := i.ScrapePage()
@@ -26,34 +36,25 @@ func (i *Instance) UpdateServers() {
 		Log("Error scraping servers: %s", e)
 	} else {
 		for _, s := range scraped {
-			i.updateServer(tx, s)
+			addServer(s)
 		}
 	}
 
 	for _, s := range i.getOldServers() {
-		i.updateServer(tx, s)
+		addServer(s)
 	}
 
+	tx := i.db.NewTransaction()
+	for _, s := range servers {
+		// get server's db id (or create)
+		id := tx.InsertOrSelect(s)
+		// create new player history point
+		tx.AddServerPopulation(id, s)
+		// update server (urls and player stats)
+		tx.UpdateServerStats(id, s)
+	}
 	tx.RemoveOldServers(Now())
 	tx.Commit()
-}
-
-func reset() {
-	// Have to reset some stuff between each update.
-	updatedServers = *new([]string)
-	ResetNow()
-}
-
-func isUpdated(title string) bool {
-	// Prevent low pop. servers, with identical name as a high pop. server,
-	// from fucking with another server's history.
-	for _, t := range updatedServers {
-		if title == t {
-			return true
-		}
-	}
-	updatedServers = append(updatedServers, title)
-	return false
 }
 
 func (i *Instance) getOldServers() []*RawServerData {
@@ -69,17 +70,4 @@ func (i *Instance) getOldServers() []*RawServerData {
 		tmp = append(tmp, &s)
 	}
 	return tmp
-}
-
-func (i *Instance) updateServer(tx *DB, s *RawServerData) {
-	if isUpdated(s.Title) {
-		return
-	}
-
-	// get server's db id (or create)
-	id := tx.InsertOrSelect(s)
-	// create new player history point
-	tx.AddServerPopulation(id, s)
-	// update server (urls and player stats)
-	tx.UpdateServerStats(id, s)
 }
