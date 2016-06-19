@@ -1,9 +1,6 @@
 package ss13
 
-import (
-	"encoding/json"
-	"io/ioutil"
-)
+import "github.com/BurntSushi/toml"
 
 type ServerConfig struct {
 	Title   string
@@ -12,21 +9,28 @@ type ServerConfig struct {
 }
 
 type Config struct {
-	PollServers []ServerConfig
-	Timeout     int
+	// Path to sqlite database file.
+	DatabasePath string
+
+	// Serve web pages on this address.
+	ListenAddr string
+
+	// List of "private" servers to manually poll for updates (private as
+	// in they do not show up on the byond hub page).
+	Servers []ServerConfig
+
+	// Update all servers every x minutes.
+	UpdateEvery int
+
+	// Timeout after x seconds, when trying to update a server.
+	UpdateTimeout int
 }
 
 func LoadConfig(path string) (*Config, error) {
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
+	c := Config{}
+	_, e := toml.DecodeFile(path, &c)
+	if e != nil {
+		return nil, e
 	}
-
-	tmp := &Config{}
-	err = json.Unmarshal(data, &tmp)
-	if err != nil {
-		return nil, err
-	}
-
-	return tmp, nil
+	return &c, nil
 }

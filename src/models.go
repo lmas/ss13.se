@@ -11,12 +11,10 @@ import (
 type D map[string]interface{}
 
 type Instance struct {
-	// Settings required by the user.
-	Debug           bool
-	DB              *DB
-	PrivServersFile string
+	Debug  bool
+	DB     *DB
+	Config *Config
 
-	// Internal stuff
 	addr   string
 	router *mux.Router
 	tmpls  *template.Template

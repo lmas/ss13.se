@@ -12,12 +12,40 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (i *Instance) Init() {
-	i.DB.InitSchema()
+func New(debug bool, path string) (*Instance, error) {
+	c, e := LoadConfig(path)
+	if e != nil {
+		return nil, e
+	}
+
+	db, e := OpenSqliteDB(c.DatabasePath)
+	if e != nil {
+		return nil, e
+	}
+	db.InitSchema()
+
+	i := Instance{
+		Debug:  debug,
+		DB:     db,
+		Config: c,
+	}
+
+	return &i, nil
 }
 
-func (i *Instance) Serve(addr string) error {
-	i.addr = addr
+func (i *Instance) Run() error {
+	go func() {
+		td := time.Duration(i.Config.UpdateEvery) * time.Minute
+		for {
+			start := time.Now()
+			i.UpdateServers()
+			dur := time.Since(start)
+			if i.Debug {
+				fmt.Printf("Update completed in %s\n", dur)
+			}
+			time.Sleep(td)
+		}
+	}()
 
 	i.router = mux.NewRouter().StrictSlash(true)
 	i.router.NotFoundHandler = http.HandlerFunc(i.page_404)
@@ -77,7 +105,7 @@ func (i *Instance) Serve(addr string) error {
 	i.router.HandleFunc("/server/{id}", i.page_server)
 	i.router.HandleFunc("/server/{id}/{slug}", i.page_server)
 
-	return http.ListenAndServe(i.addr, i.router)
+	return http.ListenAndServe(i.Config.ListenAddr, i.router)
 }
 
 func (i *Instance) page_404(w http.ResponseWriter, r *http.Request) {

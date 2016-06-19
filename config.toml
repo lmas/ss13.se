@@ -1,0 +1,27 @@
+databasepath = "ss13.db"
+
+listenaddr = ":8000"
+
+updateevery = 15 # minutes
+
+updatetimeout = 30 # seconds
+
+[[servers]]
+title = "Baystation12"
+gameurl = "baystation12.net:8000"
+siteurl = "http://baystation12.net/"
+
+[[servers]]
+title = "Apollo Station"
+gameurl = "192.95.55.67:3333"
+siteurl = "https://apollo-community.org/"
+
+[[servers]]
+title = "tgstation13 - Sybil"
+gameurl = "game.tgstation13.org:1337"
+siteurl = "https://tgstation13.org/"
+
+[[servers]]
+title = "tgstation13 - Bagil"
+gameurl = "game.tgstation13.org:2337"
+siteurl = "https://tgstation13.org/"

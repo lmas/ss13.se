@@ -20,16 +20,13 @@ func (i *Instance) UpdateServers() {
 
 	tx := i.DB.NewTransaction()
 
-	config, err := LoadConfig(i.PrivServersFile)
+	if i.Debug {
+		fmt.Println("\nPolling servers...")
+	}
+	polled, err := i.PollServers(i.Config.Servers, i.Config.UpdateTimeout)
 	if !LogError(err) {
-		if i.Debug {
-			fmt.Println("\nPolling servers...")
-		}
-		polled, err := i.PollServers(config.PollServers, config.Timeout)
-		if !LogError(err) {
-			for _, s := range polled {
-				i.update_server(tx, s)
-			}
+		for _, s := range polled {
+			i.update_server(tx, s)
 		}
 	}
 
