@@ -2,22 +2,8 @@ package ss13
 
 import (
 	"fmt"
-	"html/template"
 	"time"
-
-	"github.com/gorilla/mux"
 )
-
-type D map[string]interface{}
-
-type Instance struct {
-	Config *Config
-	Debug  bool
-
-	db     *DB
-	router *mux.Router
-	tmpls  *template.Template
-}
 
 // Database models
 

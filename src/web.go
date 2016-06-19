@@ -12,6 +12,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type D map[string]interface{}
+
+type Instance struct {
+	Config *Config
+	Debug  bool
+
+	db     *DB
+	router *mux.Router
+	tmpls  *template.Template
+}
+
 func New(debug bool, path string) (*Instance, error) {
 	// WHen in debug mode we load the assets from disk instead of the
 	// embedded ones.
