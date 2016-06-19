@@ -1,7 +1,6 @@
 package ss13
 
 import (
-	"fmt"
 	"html/template"
 	"mime"
 	"net/http"
@@ -67,7 +66,7 @@ func (i *Instance) Run() error {
 			i.UpdateServers()
 			dur := time.Since(start)
 			if i.Debug {
-				fmt.Printf("Update completed in %s\n", dur)
+				Log("Update completed in %s", dur)
 			}
 			time.Sleep(td)
 		}

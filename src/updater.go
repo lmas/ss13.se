@@ -1,11 +1,8 @@
 package ss13
 
-import (
-	"fmt"
-	"time"
-)
+import "time"
 
-var updatedservers []string
+var updatedServers []string
 
 type RawServerData struct {
 	Title     string
@@ -17,64 +14,49 @@ type RawServerData struct {
 
 func (i *Instance) UpdateServers() {
 	reset()
-
 	tx := i.db.NewTransaction()
 
-	if i.Debug {
-		fmt.Println("\nPolling servers...")
-	}
 	polled := i.PollServers(i.Config.Servers, i.Config.UpdateTimeout)
 	for _, s := range polled {
-		i.update_server(tx, s)
+		i.updateServer(tx, s)
 	}
 
-	if i.Debug {
-		fmt.Println("\nScraping servers...")
-	}
 	scraped, e := i.ScrapePage()
 	if e != nil {
 		Log("Error scraping servers: %s", e)
 	} else {
 		for _, s := range scraped {
-			i.update_server(tx, s)
+			i.updateServer(tx, s)
 		}
 	}
 
-	if i.Debug {
-		fmt.Println("\nUpdating inactive servers...")
-	}
-	for _, s := range i.get_old_servers() {
-		i.update_server(tx, s)
+	for _, s := range i.getOldServers() {
+		i.updateServer(tx, s)
 	}
 
-	if i.Debug {
-		fmt.Println("\nRemoving old servers...")
-	}
 	tx.RemoveOldServers(Now())
-
 	tx.Commit()
 }
 
 func reset() {
-	// If the updater is running in daemon mode we have to reset some stuff
-	// each time we try to run a new update.
-	updatedservers = *new([]string)
+	// Have to reset some stuff between each update.
+	updatedServers = *new([]string)
 	ResetNow()
 }
 
-func isupdated(title string) bool {
+func isUpdated(title string) bool {
 	// Prevent low pop. servers, with identical name as a high pop. server,
 	// from fucking with another server's history.
-	for _, t := range updatedservers {
+	for _, t := range updatedServers {
 		if title == t {
 			return true
 		}
 	}
-	updatedservers = append(updatedservers, title)
+	updatedServers = append(updatedServers, title)
 	return false
 }
 
-func (i *Instance) get_old_servers() []*RawServerData {
+func (i *Instance) getOldServers() []*RawServerData {
 	var tmp []*RawServerData
 	for _, old := range i.db.GetOldServers(Now()) {
 		s := RawServerData{
@@ -89,21 +71,15 @@ func (i *Instance) get_old_servers() []*RawServerData {
 	return tmp
 }
 
-func (i *Instance) update_server(tx *DB, s *RawServerData) {
-	if isupdated(s.Title) {
+func (i *Instance) updateServer(tx *DB, s *RawServerData) {
+	if isUpdated(s.Title) {
 		return
-	}
-
-	if i.Debug {
-		fmt.Println(s.Title)
 	}
 
 	// get server's db id (or create)
 	id := tx.InsertOrSelect(s)
-
 	// create new player history point
 	tx.AddServerPopulation(id, s)
-
 	// update server (urls and player stats)
 	tx.UpdateServerStats(id, s)
 }
