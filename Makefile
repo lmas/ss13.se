@@ -1,13 +1,12 @@
 
 build: generate
-	go build -tags "embed"
+	go build
 
 generate:
-	cd src/assettemplates/  && yaber --pkg "assettemplates" -strip "../../"  ../../templates/
-	cd src/assetstatic && yaber --pkg "assetstatic" -strip "../../" ../../static/
+	yaber -out src/assets.go templates/ static/
 
 test_run:
 	go run ss13.go -verbose run
 
 test_run_embed:
-	go run -tags "embed" ss13.go -verbose run
+	go run ss13.go -verbose run

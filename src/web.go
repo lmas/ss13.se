@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lmas/ss13_se/src/assetstatic"
-	"github.com/lmas/ss13_se/src/assettemplates"
 )
 
 func (i *Instance) Init() {
@@ -46,9 +44,13 @@ func (i *Instance) Serve(addr string) error {
 		},
 	}
 
+	// WHen in debug mode we load the assets from disk instead of the
+	// embedded ones.
+	SetRawAssets(i.Debug)
+
 	// Load templates
 	tmpl := template.New("AllTemplates").Funcs(funcmap)
-	tmplfiles, err := assettemplates.AssetDir("templates/")
+	tmplfiles, err := AssetDir("templates/")
 	if err != nil {
 		panic(err)
 	}
@@ -59,7 +61,7 @@ func (i *Instance) Serve(addr string) error {
 	i.router.SetHTMLTemplate(tmpl)
 
 	// Load static files
-	staticfiles, e := assetstatic.AssetDir("static/")
+	staticfiles, e := AssetDir("static/")
 	if e != nil {
 		panic(e)
 	}
