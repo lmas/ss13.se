@@ -62,7 +62,7 @@ func New(debug bool, path string) (*Instance, error) {
 	i.router.HandleFunc("/about", i.page_about)
 	i.router.HandleFunc("/r/ver", i.page_apollo)
 	i.router.HandleFunc("/server/{id}", i.page_server)
-	i.router.HandleFunc("/server/{id}/{slug}", i.page_server)
+	i.router.HandleFunc("/server/{id}/{slug:.*}", i.page_server)
 	i.router.HandleFunc("/static/{file:.*}", i.page_static)
 	i.router.NotFoundHandler = http.HandlerFunc(i.page_404)
 
