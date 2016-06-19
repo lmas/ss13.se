@@ -25,9 +25,10 @@ func New(debug bool, path string) (*Instance, error) {
 	db.InitSchema()
 
 	i := Instance{
-		Debug:  debug,
-		DB:     db,
 		Config: c,
+		Debug:  debug,
+
+		db: db,
 	}
 
 	return &i, nil
@@ -114,7 +115,7 @@ func (i *Instance) page_404(w http.ResponseWriter, r *http.Request) {
 }
 
 func (i *Instance) page_index(w http.ResponseWriter, r *http.Request) {
-	servers := i.DB.AllServers()
+	servers := i.db.AllServers()
 	i.tmpls.ExecuteTemplate(w, "page_index.html", D{
 		"pagetitle": "Index",
 		"servers":   servers,
@@ -132,7 +133,7 @@ func (i *Instance) page_server(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s, err := i.DB.GetServer(int(id))
+	s, err := i.db.GetServer(int(id))
 	if err != nil {
 		i.page_404(w, r)
 		return
@@ -153,8 +154,8 @@ func (i *Instance) page_server(w http.ResponseWriter, r *http.Request) {
 	i.tmpls.ExecuteTemplate(w, "page_server.html", D{
 		"pagetitle":    s.Title,
 		"server":       s,
-		"weekhistory":  i.DB.GetServerPopulation(int(id), time.Duration(7*24+12)*time.Hour),
-		"monthhistory": i.DB.GetServerPopulation(int(id), time.Duration(31*24)*time.Hour),
+		"weekhistory":  i.db.GetServerPopulation(int(id), time.Duration(7*24+12)*time.Hour),
+		"monthhistory": i.db.GetServerPopulation(int(id), time.Duration(31*24)*time.Hour),
 		"weekdayavg":   weekdayavg,
 	})
 }

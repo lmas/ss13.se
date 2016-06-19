@@ -18,7 +18,7 @@ type RawServerData struct {
 func (i *Instance) UpdateServers() {
 	reset()
 
-	tx := i.DB.NewTransaction()
+	tx := i.db.NewTransaction()
 
 	if i.Debug {
 		fmt.Println("\nPolling servers...")
@@ -76,7 +76,7 @@ func isupdated(title string) bool {
 
 func (i *Instance) get_old_servers() []*RawServerData {
 	var tmp []*RawServerData
-	for _, old := range i.DB.GetOldServers(Now()) {
+	for _, old := range i.db.GetOldServers(Now()) {
 		s := RawServerData{
 			Title:     old.Title,
 			Game_url:  old.GameUrl,

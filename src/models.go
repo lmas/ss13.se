@@ -11,11 +11,10 @@ import (
 type D map[string]interface{}
 
 type Instance struct {
-	Debug  bool
-	DB     *DB
 	Config *Config
+	Debug  bool
 
-	addr   string
+	db     *DB
 	router *mux.Router
 	tmpls  *template.Template
 }
