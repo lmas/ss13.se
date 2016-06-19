@@ -2,10 +2,13 @@ package ss13
 
 import (
 	"fmt"
+	"html/template"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 )
+
+type D map[string]interface{}
 
 type Instance struct {
 	// Settings required by the user.
@@ -15,7 +18,8 @@ type Instance struct {
 
 	// Internal stuff
 	addr   string
-	router *gin.Engine
+	router *mux.Router
+	tmpls  *template.Template
 }
 
 // Database models

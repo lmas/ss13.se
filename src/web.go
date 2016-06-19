@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 )
 
 func (i *Instance) Init() {
@@ -18,17 +18,9 @@ func (i *Instance) Init() {
 
 func (i *Instance) Serve(addr string) error {
 	i.addr = addr
-	if i.Debug == false {
-		gin.SetMode(gin.ReleaseMode)
-	}
 
-	// TODO: replace Default with New and use custom logger and stuff?
-	i.router = gin.Default()
-	i.router.NoRoute(func() gin.HandlerFunc {
-		return func(c *gin.Context) {
-			c.HTML(http.StatusNotFound, "page_404.html", nil)
-		}
-	}())
+	i.router = mux.NewRouter().StrictSlash(true)
+	i.router.NotFoundHandler = http.HandlerFunc(i.page_404)
 
 	// Custom template functions
 	funcmap := template.FuncMap{
@@ -58,7 +50,7 @@ func (i *Instance) Serve(addr string) error {
 		name := filepath.Base(p)
 		template.Must(tmpl.New(name).Parse(string(b)))
 	}
-	i.router.SetHTMLTemplate(tmpl)
+	i.tmpls = tmpl
 
 	// Load static files
 	staticfiles, e := AssetDir("static/")
@@ -66,51 +58,55 @@ func (i *Instance) Serve(addr string) error {
 		panic(e)
 	}
 	for p, _ := range staticfiles {
-		ctype := mime.TypeByExtension(filepath.Ext(p))
 		// Need to make a local copy of the var or else all files will
 		// return the content of a single file (quirk with range).
 		b := staticfiles[p]
-		i.router.GET(fmt.Sprintf("/%s", p), func(c *gin.Context) {
-			c.Data(http.StatusOK, ctype, b)
-		})
+		ctype := mime.TypeByExtension(filepath.Ext(p))
+		i.router.HandleFunc(fmt.Sprintf("/%s", p),
+			func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Add("Content-Type", ctype)
+				_, e := w.Write(b)
+				LogError(e)
+			})
 	}
 
 	// Setup all URLS
-	i.router.GET("/", i.page_index)
+	i.router.HandleFunc("/", i.page_index)
+	i.router.HandleFunc("/about", i.page_about)
+	i.router.HandleFunc("/r/ver", i.page_apollo)
+	i.router.HandleFunc("/server/{id}", i.page_server)
+	i.router.HandleFunc("/server/{id}/{slug}", i.page_server)
 
-	i.router.GET("/server/:server_id/*slug", i.page_server)
-	i.router.GET("/server/:server_id", i.page_server)
-
-	//i.router.GET("/stats", page_stats)
-	i.router.GET("/about", i.page_about)
-
-	i.router.GET("/r/ver", i.page_apollo)
-
-	return i.router.Run(i.addr)
+	return http.ListenAndServe(i.addr, i.router)
 }
 
-func (i *Instance) page_index(c *gin.Context) {
+func (i *Instance) page_404(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+	i.tmpls.ExecuteTemplate(w, "page_404.html", nil)
+}
+
+func (i *Instance) page_index(w http.ResponseWriter, r *http.Request) {
 	servers := i.DB.AllServers()
-	c.HTML(http.StatusOK, "page_index.html", gin.H{
+	i.tmpls.ExecuteTemplate(w, "page_index.html", D{
 		"pagetitle": "Index",
 		"servers":   servers,
 	})
 }
 
-func (i *Instance) page_about(c *gin.Context) {
-	c.HTML(http.StatusOK, "page_about.html", nil)
+func (i *Instance) page_about(w http.ResponseWriter, r *http.Request) {
+	i.tmpls.ExecuteTemplate(w, "page_about.html", nil)
 }
 
-func (i *Instance) page_server(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("server_id"), 10, 0)
+func (i *Instance) page_server(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(mux.Vars(r)["id"], 10, 0)
 	if err != nil {
-		c.HTML(http.StatusNotFound, "page_404.html", nil)
+		i.page_404(w, r)
 		return
 	}
 
 	s, err := i.DB.GetServer(int(id))
 	if err != nil {
-		c.HTML(http.StatusNotFound, "page_404.html", nil)
+		i.page_404(w, r)
 		return
 	}
 	type weekday struct {
@@ -126,7 +122,7 @@ func (i *Instance) page_server(c *gin.Context) {
 		weekday{"Saturday", s.PlayersSat},
 		weekday{"Sunday", s.PlayersSun},
 	}
-	c.HTML(http.StatusOK, "page_server.html", gin.H{
+	i.tmpls.ExecuteTemplate(w, "page_server.html", D{
 		"pagetitle":    s.Title,
 		"server":       s,
 		"weekhistory":  i.DB.GetServerPopulation(int(id), time.Duration(7*24+12)*time.Hour),
@@ -135,7 +131,7 @@ func (i *Instance) page_server(c *gin.Context) {
 	})
 }
 
-func (i *Instance) page_apollo(c *gin.Context) {
+func (i *Instance) page_apollo(w http.ResponseWriter, r *http.Request) {
 	// Go away, this it not an easter egg.
-	c.Redirect(http.StatusFound, "byond://192.95.55.67:3333")
+	http.Redirect(w, r, "byond://192.95.55.67:3333", http.StatusFound)
 }

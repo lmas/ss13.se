@@ -69,6 +69,7 @@ func (i *Instance) PollServers(servers []ServerConfig, timeout int) ([]*RawServe
 				return
 			}
 			gameurl := fmt.Sprintf("byond://%s", s.GameUrl)
+			// TODO: data race
 			tmp = append(tmp, &RawServerData{s.Title, gameurl, s.SiteUrl, players, Now()})
 		}(s)
 	}
