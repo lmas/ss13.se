@@ -64,10 +64,8 @@ func parse_data(data *goquery.Document) ([]*RawServerData, error) {
 	var servers []*RawServerData
 	data.Find(".live_game_entry").Each(func(i int, s *goquery.Selection) {
 		tmp, err := parse_server_data(s)
-		if !LogError(err) {
-			if tmp != nil {
-				servers = append(servers, tmp)
-			}
+		if err == nil && tmp != nil {
+			servers = append(servers, tmp)
 		}
 	})
 	return servers, nil
