@@ -15,7 +15,7 @@ type DB struct {
 
 func OpenSqliteDB(args ...interface{}) (*DB, error) {
 	db, e := gorm.Open("sqlite3", args...)
-	if LogError(e) {
+	if e != nil {
 		return nil, e
 	}
 	return &DB{db}, nil

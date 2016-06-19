@@ -23,18 +23,18 @@ func (i *Instance) UpdateServers() {
 	if i.Debug {
 		fmt.Println("\nPolling servers...")
 	}
-	polled, err := i.PollServers(i.Config.Servers, i.Config.UpdateTimeout)
-	if !LogError(err) {
-		for _, s := range polled {
-			i.update_server(tx, s)
-		}
+	polled := i.PollServers(i.Config.Servers, i.Config.UpdateTimeout)
+	for _, s := range polled {
+		i.update_server(tx, s)
 	}
 
 	if i.Debug {
 		fmt.Println("\nScraping servers...")
 	}
-	scraped, err := i.ScrapePage()
-	if !LogError(err) {
+	scraped, e := i.ScrapePage()
+	if e != nil {
+		Log("Error scraping servers: %s", e)
+	} else {
 		for _, s := range scraped {
 			i.update_server(tx, s)
 		}

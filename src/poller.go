@@ -57,15 +57,16 @@ func poll_players(host string, timeout int) (int, error) {
 	return int(players), nil
 }
 
-func (i *Instance) PollServers(servers []ServerConfig, timeout int) ([]*RawServerData, error) {
+func (i *Instance) PollServers(servers []ServerConfig, timeout int) []*RawServerData {
 	var wg sync.WaitGroup
 	var tmp []*RawServerData
 	for _, s := range servers {
 		wg.Add(1)
 		go func(s ServerConfig) {
 			defer wg.Done()
-			players, err := poll_players(s.GameUrl, timeout)
-			if LogError(err) {
+			players, e := poll_players(s.GameUrl, timeout)
+			if e != nil {
+				Log("Error polling server %s: %s", s.GameUrl, e)
 				return
 			}
 			gameurl := fmt.Sprintf("byond://%s", s.GameUrl)
@@ -74,5 +75,5 @@ func (i *Instance) PollServers(servers []ServerConfig, timeout int) ([]*RawServe
 		}(s)
 	}
 	wg.Wait()
-	return tmp, nil
+	return tmp
 }

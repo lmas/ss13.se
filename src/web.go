@@ -83,7 +83,7 @@ func (i *Instance) page_404(w http.ResponseWriter, r *http.Request) {
 func (i *Instance) page_static(w http.ResponseWriter, r *http.Request) {
 	p := path.Join("static", mux.Vars(r)["file"])
 	b, e := Asset(p)
-	if LogError(e) {
+	if e != nil {
 		i.page_404(w, r)
 		return
 	}
@@ -91,7 +91,9 @@ func (i *Instance) page_static(w http.ResponseWriter, r *http.Request) {
 	ctype := mime.TypeByExtension(filepath.Ext(p))
 	w.Header().Add("Content-Type", ctype)
 	_, e = w.Write(b)
-	LogError(e)
+	if e != nil {
+		Log("Error sending static file %s: %s", p, e)
+	}
 }
 
 func (i *Instance) page_index(w http.ResponseWriter, r *http.Request) {

@@ -23,12 +23,8 @@ var (
 	}
 )
 
-func LogError(err error) bool {
-	if err != nil {
-		log.Printf("WARNING: %s\n", err)
-		return true
-	}
-	return false
+func Log(f string, args ...interface{}) {
+	log.Printf(f+"\n", args...)
 }
 
 func ResetNow() {
