@@ -18,12 +18,9 @@ func OpenSqliteDB(args ...interface{}) (*DB, error) {
 	if e != nil {
 		return nil, e
 	}
-	return &DB{db}, nil
-}
-
-func (db *DB) InitSchema() {
 	db.AutoMigrate(&Server{})
 	db.AutoMigrate(&ServerPopulation{})
+	return &DB{db}, nil
 }
 
 func (db *DB) NewTransaction() *DB {
@@ -77,21 +74,21 @@ func (db *DB) InsertOrSelect(s *RawServerData) int {
 	return tmp.ID
 }
 
-func (db *DB) AddServerPopulation(id int, s *RawServerData) {
+func (db *DB) AddServerPopulation(id int, s *RawServerData, now time.Time) {
 	var tmp Server
 	db.Where("id = ?", id).First(&tmp)
 	pop := ServerPopulation{
-		Timestamp: Now(),
+		Timestamp: now,
 		Players:   s.Players,
 		Server:    tmp,
 	}
 	db.Create(&pop)
 }
 
-func (db *DB) UpdateServerStats(id int, s *RawServerData) {
+func (db *DB) UpdateServerStats(id int, s *RawServerData, now time.Time) {
 	var tmp Server
 
-	period := Now().Add(-time.Duration(30*24) * time.Hour)
+	period := now.Add(-time.Duration(30*24) * time.Hour)
 	db.Where("id = ?", id).First(&tmp)
 	rows, err := db.Table("server_populations").Where("server_id = ? AND timestamp > ?", tmp.ID, period).Select("timestamp, players").Order("timestamp desc").Rows()
 	if err != nil {

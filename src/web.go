@@ -47,7 +47,6 @@ func New(debug bool, path string) (*Instance, error) {
 	if e != nil {
 		return nil, e
 	}
-	db.InitSchema()
 
 	i := Instance{
 		Config: c,
