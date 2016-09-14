@@ -9,23 +9,23 @@ import (
 
 type Server struct {
 	ID          int
-	LastUpdated time.Time
-	Title       string `sql:"type:varchar(64);unique"`
-	GameUrl     string
-	SiteUrl     string
+	LastUpdated time.Time `db:"last_updated"`
+	Title       string
+	GameUrl     string `db:"game_url"`
+	SiteUrl     string `db:"site_url"`
 
-	PlayersCurrent int
-	PlayersAvg     int
-	PlayersMin     int
-	PlayersMax     int
+	PlayersCurrent int `db:"players_current"`
+	PlayersAvg     int `db:"players_avg"`
+	PlayersMin     int `db:"players_min"`
+	PlayersMax     int `db:"players_max"`
 
-	PlayersMon int
-	PlayersTue int
-	PlayersWed int
-	PlayersThu int
-	PlayersFri int
-	PlayersSat int
-	PlayersSun int
+	PlayersMon int `db:"players_mon"`
+	PlayersTue int `db:"players_tue"`
+	PlayersWed int `db:"players_wed"`
+	PlayersThu int `db:"players_thu"`
+	PlayersFri int `db:"players_fri"`
+	PlayersSat int `db:"players_sat"`
+	PlayersSun int `db:"players_sun"`
 }
 
 // Check if a server's last_updated time since now is greater or equal to X hours.
@@ -63,10 +63,5 @@ type ServerPopulation struct {
 	ID        int
 	Timestamp time.Time
 	Players   int
-	ServerID  int `sql:"index;type:integer REFERENCES servers(id) ON DELETE CASCADE ON UPDATE CASCADE"`
-	Server    Server
+	ServerID  int `db:"server_id"`
 }
-
-// See https://github.com/jinzhu/gorm/issues/635 for why we have to manually add
-// in a raw REFERENCES statement here.
-// Hint: Foreign key creation is bugged when using gorm with sqlite.

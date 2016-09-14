@@ -18,7 +18,7 @@ type Instance struct {
 	Config *Config
 	Debug  bool
 
-	db     *DB
+	db     *Database
 	router *mux.Router
 	tmpls  *template.Template
 }
@@ -43,7 +43,7 @@ func New(debug bool, path string) (*Instance, error) {
 		return nil, e
 	}
 
-	db, e := OpenSqliteDB(c.DatabasePath)
+	db, e := OpenDatabase(c.DatabasePath)
 	if e != nil {
 		return nil, e
 	}
@@ -89,6 +89,11 @@ func (i *Instance) page_404(w http.ResponseWriter, r *http.Request) {
 	i.tmpls.ExecuteTemplate(w, "page_404.html", nil)
 }
 
+func (i *Instance) page_500(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusInternalServerError)
+	//i.tmpls.ExecuteTemplate(w, "page_500.html", nil)
+}
+
 func (i *Instance) page_static(w http.ResponseWriter, r *http.Request) {
 	p := path.Join("static", mux.Vars(r)["file"])
 	b, e := Asset(p)
@@ -106,7 +111,12 @@ func (i *Instance) page_static(w http.ResponseWriter, r *http.Request) {
 }
 
 func (i *Instance) page_index(w http.ResponseWriter, r *http.Request) {
-	servers := i.db.AllServers()
+	servers, e := i.db.AllServers()
+	if e != nil {
+		Log("Error for AllServers(): %s", e)
+		i.page_500(w, r)
+		return
+	}
 	i.tmpls.ExecuteTemplate(w, "page_index.html", D{
 		"pagetitle": "Index",
 		"servers":   servers,
@@ -142,11 +152,23 @@ func (i *Instance) page_server(w http.ResponseWriter, r *http.Request) {
 		weekday{"Saturday", s.PlayersSat},
 		weekday{"Sunday", s.PlayersSun},
 	}
+	weekly, e := i.db.GetServerPopulation(int(id), time.Duration(7*24+12)*time.Hour)
+	if e != nil {
+		Log("Error for GetServerPopulation(): %s", e)
+		i.page_500(w, r)
+		return
+	}
+	monthly, e := i.db.GetServerPopulation(int(id), time.Duration(31*24)*time.Hour)
+	if e != nil {
+		Log("Error for GetServerPopulation(): %s", e)
+		i.page_500(w, r)
+		return
+	}
 	i.tmpls.ExecuteTemplate(w, "page_server.html", D{
 		"pagetitle":    s.Title,
 		"server":       s,
-		"weekhistory":  i.db.GetServerPopulation(int(id), time.Duration(7*24+12)*time.Hour),
-		"monthhistory": i.db.GetServerPopulation(int(id), time.Duration(31*24)*time.Hour),
+		"weekhistory":  weekly,
+		"monthhistory": monthly,
 		"weekdayavg":   weekdayavg,
 	})
 }

@@ -51,24 +51,50 @@ func (i *Instance) UpdateServers() {
 		addServer(s)
 	}
 
-	tx := i.db.NewTransaction()
+	// TODO: move this block into db.go
+	//tx, e := i.db.NewTransaction()
+	t, e := i.db.Beginx()
+	if e != nil {
+		panic(e) // TODO
+	}
+	tx := &TX{t}
+
 	for _, s := range servers {
 		fmt.Println("Updating:", s.Title)
 		// get server's db id (or create)
-		id := tx.InsertOrSelect(s)
+		id, e := tx.InsertOrSelect(s)
+		if e != nil {
+			continue
+		}
 		// create new player history point
-		tx.AddServerPopulation(id, s, now)
+		e = tx.AddServerPopulation(id, s, now)
+		if e != nil {
+			continue
+		}
 		// update server (urls and player stats)
-		tx.UpdateServerStats(id, s, now)
+		e = tx.UpdateServerStats(id, s, now)
+		if e != nil {
+			continue
+		}
 	}
-	tx.RemoveOldServers(Now())
-	tx.Commit()
+	e = tx.Commit()
+	if e != nil {
+		panic(e) // TODO
+	}
+
+	e = i.db.RemoveOldServers(Now())
+	if e != nil {
+		panic(e) // TODO
+	}
 }
 
 func (i *Instance) getOldServers() []*RawServerData {
-	// TODO: there's some bug that makes this func return all servers?
 	var tmp []*RawServerData
-	for _, old := range i.db.GetOldServers(Now()) {
+	servers, e := i.db.GetOldServers(Now())
+	if e != nil {
+		panic(e) // TODO
+	}
+	for _, old := range servers {
 		s := RawServerData{
 			Title:     old.Title,
 			Game_url:  old.GameUrl,
