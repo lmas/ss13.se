@@ -8,7 +8,9 @@ server page at [Byond](http://www.byond.com/games/exadv1/spacestation13).
 
 Status
 --------------------------------------------------------------------------------
-The site is currently being rewritten into Go.
+~~The site is currently being rewritten into Go.~~
+Project has been shut down for now and is unmaintained. For the latest work,
+check out the dev branch.
 
 
 Features
