@@ -32,6 +32,12 @@ func (a *App) pageIndex(w http.ResponseWriter, r *http.Request, vars handlerVars
 	})
 }
 
+func (a *App) pageNews(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
+	return a.templates["news"].Execute(w, map[string]interface{}{
+		"Reddit": a.news,
+	})
+}
+
 func (a *App) pageServer(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
 	id := vars["id"]
 	server, err := a.store.GetServer(id)

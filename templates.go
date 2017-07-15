@@ -86,6 +86,7 @@ var tmplList = map[string]string{
 <p>Current # of servers: {{.TotalServers}}</p>
 <p>Current # of players: {{.Hub.Players}}</p>
 <a href="/server/{{.Hub.ID}}">Global stats</a><br />
+<a href="/news">Latest news</a><br />
 <br />
 <table>
 	<thead><tr>
@@ -104,6 +105,15 @@ var tmplList = map[string]string{
 	{{end}}
 	</tbody>
 </table>
+{{end}}
+`,
+
+	"news": `{{define "title"}}News{{end}}
+{{define "body"}}
+<h1>Latest mentions on reddit</h1>
+<ul>{{range .Reddit}}
+	<li><a href="{{.Link}}">{{.Title}}</a></li>
+{{end}}</ul>
 {{end}}
 `,
 
