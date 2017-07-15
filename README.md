@@ -1,12 +1,13 @@
-[Space Station 13 Hub](http://www.ss13.se/)
+[Space Station 13 Hub](https://www.ss13.se/)
 ================================================================================
 
 A server hub dedicated to SS13 and possibly a better replacement for the default
-server page at [Byond](http://www.byond.com/games/exadv1/spacestation13).
+server page at [Byond](https://www.byond.com/games/exadv1/spacestation13).
 
-The source code has recently been rewritten from Python to Go, for better
-performance and stability, as well as cleaner structure and ease of use for
-the server host.
+Status
+--------------------------------------------------------------------------------
+
+***In the cloner***
 
 Please note that the code is still in a **experimental stage** at this time and
 there is still a lot of work to be done before it's ready for production use.
@@ -14,13 +15,18 @@ there is still a lot of work to be done before it's ready for production use.
 Features For Players
 --------------------------------------------------------------------------------
 
-- A friendlier server list, which is also sortable.
+- A friendlier server list.
 
 - Player count stats and graphs.
 
 - Dedicated pages for each public server, with more detailed info.
 
 - Pages for private servers too, upon request.
+
+Features for server Owners
+--------------------------------------------------------------------------------
+
+TODO
 
 Data Source
 --------------------------------------------------------------------------------
@@ -53,7 +59,7 @@ Please provide the following info for your server and write it in your new ticke
     Game URL - The publicly open address to the game server.
     Site URL - The address to your server's web page, if you have one.
 
-See the file `servers.json` for examples.
+See the file `TODO` for examples.
 
 License
 --------------------------------------------------------------------------------
@@ -72,31 +78,7 @@ Credits
 Todo
 --------------------------------------------------------------------------------
 
-**Bugs**
+- Missing tests (a must have for the scraper and poller).
 
-- Better colors for the warning/offline server notices.
-
-- Update static files to newer versions.
-
-**New features**
-
-- Tests (a must have for the scraper and poller).
-
-- Dump bootstrap and make a new style.
-
-- Stats page:
-    - Server graphs
-    - Player graphs + average
-    - Number of online/warn/offline servers.
-    - Total/average number of online players.
-    - Log of recently added/removed servers.
-    - The number of data points since start.
-    - Time since last update.
-    - Time to run update
-
-**Suggestions**
-
-- Live player count API and script to embed in external sites (https://github.com/lmas/ss13_se/issues/2)?
-
-- Player growth rate for each server (+/- compared to avg.)?
+- Missign the favicon.
 
