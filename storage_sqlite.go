@@ -1,4 +1,4 @@
-package ss13hub
+package ss13_se
 
 import (
 	"time"
