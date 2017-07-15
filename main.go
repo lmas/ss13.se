@@ -74,18 +74,19 @@ func (a *App) Run() error {
 		return err
 	}
 
+	webClient := &http.Client{
+		Timeout: 60 * time.Second,
+	}
+
 	a.Log("Running updater")
-	go a.runUpdater()
+	go a.runUpdater(webClient)
+
 
 	a.Log("Running server on %s", a.conf.WebAddr)
 	return a.web.ListenAndServe()
 }
 
-func (a *App) runUpdater() {
-	webClient := &http.Client{
-		Timeout: 60 * time.Second,
-	}
-
+func (a *App) runUpdater(webClient *http.Client) {
 	for {
 		now := time.Now()
 		servers, err := scrapeByond(webClient, now)
