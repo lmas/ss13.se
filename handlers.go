@@ -94,7 +94,7 @@ func (a *App) pageWeeklyChart(w http.ResponseWriter, r *http.Request, vars handl
 
 func (a *App) pageAverageChart(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
 	id := vars["id"]
-	points, err := a.store.GetSingleServerHistory(id, 7)
+	points, err := a.store.GetSingleServerHistory(id, 30)
 	if err != nil {
 		return err
 	}
