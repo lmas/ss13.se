@@ -23,7 +23,9 @@ func (a *App) runRedditWatcher(webClient *http.Client) {
 		start := time.Now()
 		feed, err := rss.FetchByFunc(f, redditURL)
 		dur := time.Since(start)
-		a.Log("Updated reddit in %s, errors: %v", dur, err)
+		if err != nil {
+			a.Log("Updated reddit in %s, errors: %v", dur, err)
+		}
 
 		if err == nil {
 			a.news = feed.Items

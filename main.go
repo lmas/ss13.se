@@ -100,7 +100,9 @@ func (a *App) runUpdater(webClient *http.Client) {
 		now := time.Now()
 		servers, err := scrapeByond(webClient, now)
 		dur := time.Since(now)
-		a.Log("Scrape done in %s, errors: %v", dur, err)
+		if err != nil {
+			a.Log("Scrape done in %s, errors: %v", dur, err)
+		}
 
 		if err == nil {
 			servers = append(servers, a.makeHubEntry(now, servers))
