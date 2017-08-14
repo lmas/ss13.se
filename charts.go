@@ -40,6 +40,7 @@ func (a *App) renderChart(w http.ResponseWriter, c renderableChart) error {
 }
 
 func makeHistoryChart(title string, points []ServerPoint) chart.Chart {
+	// TODO BUG: one day is missing randomly (usually the 3rd day in the range) in the chart
 	var xVals []time.Time
 	var yVals []float64
 	for _, p := range points {

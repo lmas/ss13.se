@@ -2,9 +2,7 @@ package ss13_se
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -23,9 +21,9 @@ type handlerVars map[string]string
 type handler func(http.ResponseWriter, *http.Request, handlerVars) error
 
 func (h handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	start := time.Now()
+	//start := time.Now()
 	err := h(rw, req, mux.Vars(req))
-	dur := time.Since(start)
+	//dur := time.Since(start)
 
 	if err != nil {
 		switch e := err.(type) {
@@ -37,13 +35,13 @@ func (h handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	log.Printf("%s %s \t%s \terr: %v\n",
-		//req.RemoteAddr,
-		req.Method,
-		req.URL.String(),
-		//req.UserAgent(),
-		dur,
-		//resp.Status,
-		err,
-	)
+	//log.Printf("%s %s \t%s \terr: %v\n",
+	//req.RemoteAddr,
+	//req.Method,
+	//req.URL.String(),
+	//req.UserAgent(),
+	//dur,
+	//resp.Status,
+	//err,
+	//)
 }
