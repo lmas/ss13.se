@@ -11,8 +11,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Used internally for logging a global # of players
-const internalServerTitle string = "_ss13.se"
+const (
+	// Used internally for logging a global # of players
+	internalServerTitle string = "_ss13.se"
+
+	oldServerTimeout = 24 * 7 // in hours
+)
 
 type Conf struct {
 	// Web stuff
@@ -109,7 +113,7 @@ func (a *App) runUpdater(webClient *http.Client) {
 				a.Log("Error saving server history: %s", err)
 			}
 
-			if err := a.updateOldServers(now, servers); err != nil {
+			if err := a.updateOldServers(now); err != nil {
 				a.Log("Error updating old servers: %s", err)
 			}
 		}
@@ -130,21 +134,22 @@ func (a *App) updateHistory(t time.Time, servers []ServerEntry) error {
 	return a.store.SaveServerHistory(history)
 }
 
-func (a *App) updateOldServers(t time.Time, servers []ServerEntry) error {
-	var old []ServerEntry
-	for _, s := range servers {
-		if !s.Time.Equal(t) {
-			s.Players = 0
-			old = append(old, s)
-		}
+func (a *App) updateOldServers(t time.Time) error {
+	servers, err := a.store.GetServers()
+	if err != nil {
+		return err
 	}
 
 	var remove []ServerEntry
-	for index, s := range old {
+	var update []ServerEntry
+	for _, s := range servers {
 		delta := t.Sub(s.Time)
-		if delta.Hours() > 24*1 { // TODO: CHANGE TO A WEEK AFTER TESTING
+		switch {
+		case delta.Hours() > oldServerTimeout:
 			remove = append(remove, s)
-			old = append(old[:index], old[index+1:]...)
+		case !s.Time.Equal(t):
+			s.Players = 0
+			update = append(update, s)
 		}
 	}
 
@@ -155,9 +160,9 @@ func (a *App) updateOldServers(t time.Time, servers []ServerEntry) error {
 		}
 	}
 
-	if len(old) > 0 {
-		a.Log("Old servers: %s", serverNameList(old)) // TODO: remove after testing
-		if err := a.updateHistory(t, old); err != nil {
+	if len(update) > 0 {
+		a.Log("Old servers: %s", serverNameList(update)) // TODO: remove after testing?
+		if err := a.updateHistory(t, update); err != nil {
 			return err
 		}
 	}
