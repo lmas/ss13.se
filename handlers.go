@@ -19,22 +19,20 @@ func (a *App) pageIndex(w http.ResponseWriter, r *http.Request, vars handlerVars
 			break
 		}
 	}
-	var hub ServerEntry
 	if index > -1 {
-		hub = servers[index]
 		servers = append(servers[:index], servers[index+1:]...)
 	}
 
 	return a.templates["index"].Execute(w, map[string]interface{}{
-		"Servers":      servers,
-		"Hub":          hub,
-		"TotalServers": len(servers),
+		"Servers": servers,
+		"Hub":     a.hub,
 	})
 }
 
 func (a *App) pageNews(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
 	return a.templates["news"].Execute(w, map[string]interface{}{
 		"Reddit": a.news,
+		"Hub":    a.hub,
 	})
 }
 
@@ -55,6 +53,7 @@ func (a *App) pageServer(w http.ResponseWriter, r *http.Request, vars handlerVar
 
 	return a.templates["server"].Execute(w, map[string]interface{}{
 		"Server": server,
+		"Hub":    a.hub,
 	})
 }
 

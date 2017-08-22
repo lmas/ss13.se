@@ -28,6 +28,8 @@ func parseTemplate(src ...string) (*template.Template, error) {
 	return t, nil
 }
 
+// Using the awesome style from http://bettermotherfuckingwebsite.com/
+
 const tmplBase string = `<!DOCTYPE html>
 <html>
         <head>
@@ -36,12 +38,58 @@ const tmplBase string = `<!DOCTYPE html>
                         {{block "title" .}}NO TITLE{{end}} | ss13.se
                 </title>
                 <style type="text/css">
+                html, body, p, h1, h2, img, ul, li, table {
+			padding: 0px;
+			margin: 0px;
+		}
+		body {
+			margin: 0px auto;
+			max-width: 1024px;
+			font-size: 18px;
+			padding: 0 10px;
+			line-height: 1.6;
+			color: #444;
+			background-color: #fff;
+		}
+                h1, h2 {
+			text-align: center;
+		}
+		a, a:hover, a:visited {
+			color: #444;
+			text-decoration: underline;
+		}
                 img {
 			display: block;
 			margin: auto;
 		}
+		header {
+			margin-bottom: 40px;
+			padding: 10px 20px;
+			color: #fff;
+			background-color: #444;
+			border-bottom-left-radius: 5px;
+			border-bottom-right-radius: 5px;
+		}
+		header a, header a:hover, header a:visited {
+			color: #fff;
+			text-decoration: none;
+			display: inline;
+			padding-right: 40px;
+		}
                 footer {
+			margin-top: 40px;
+			padding: 10px;
 			text-align: center;
+		}
+		.button a {
+			background-color: #444;
+			color: #fff;
+			border-radius: 5px;
+			padding: 5px 10px;
+			text-decoration: none;
+		}
+		.button a:hover {
+			background-color: #888;
 		}
 		.left {
 			float: left;
@@ -49,11 +97,17 @@ const tmplBase string = `<!DOCTYPE html>
 		.right {
 			float: right;
 		}
+		.hide td, .hide a {
+			color: #bbb;
+		}
                 </style>
         </head>
         <body>
                 <header>
-			<h2><a href="/">SS13.se</a></h2>
+			<a href="/">ss13.se</a>
+			<a href="/server/{{.Hub.ID}}">Global stats</a>
+			<a href="/news">Latest news</a>
+			<p class="right">Last updated: {{.Hub.LastUpdated}}</p>
                 </header>
 
                 <section id="body">
@@ -71,7 +125,7 @@ const tmplBase string = `<!DOCTYPE html>
 				Copyright © 2017 A. Svensson
 
 				<span class="right">
-					Using raw data from
+					Raw data from
 					<a href="http://www.byond.com/games/exadv1/spacestation13">Byond</a>
 				</span>
 			</p>
@@ -82,12 +136,7 @@ const tmplBase string = `<!DOCTYPE html>
 var tmplList = map[string]string{
 	"index": `{{define "title"}}Index{{end}}
 {{define "body"}}
-<p>Last updated: {{.Hub.LastUpdated}}</p>
-<p>Current # of servers: {{.TotalServers}}</p>
-<p>Current # of players: {{.Hub.Players}}</p>
-<a href="/server/{{.Hub.ID}}">Global stats</a><br />
-<a href="/news">Latest news</a><br />
-<br />
+<h1>Servers</h1>
 <table>
 	<thead><tr>
 		<td>Players</td>
@@ -96,7 +145,7 @@ var tmplList = map[string]string{
 
 	<tbody>
 	{{range .Servers}}
-		<tr>
+		<tr {{if lt .Players 1}}class="hide"{{end}}>
 			<td>{{.Players}}</td>
 			<td><a href="/server/{{.ID}}">{{.Title}}</a></td>
 		</tr>
@@ -121,20 +170,22 @@ var tmplList = map[string]string{
 {{define "body"}}
 <h1>{{.Server.Title}}</h1>
 
-<p>Last updated: {{.Server.LastUpdated}}</p>
-<p>Current players: {{.Server.Players}}</p>
 {{if .Server.SiteURL}}
-	<a href="{{.Server.SiteURL}}">Web site</a><br />
+	<span class="button"><a href="{{.Server.SiteURL}}">Website</a></span>
 {{end}}
 
 {{if .Server.ByondURL}}
-	<a href="{{.Server.ByondURL}}">Join game</a><br />
+	<span class="button"><a href="{{.Server.ByondURL}}">Join game</a></span>
 {{end}}
 
-<br />
-<img src="/server/{{.Server.ID}}/daily" alt="Daily history"><br />
-<img src="/server/{{.Server.ID}}/weekly" alt="Weekly history"><br />
-<img src="/server/{{.Server.ID}}/average" alt="Average per day"><br />
+<p>Current players: {{.Server.Players}}</p>
+
+<h2>Daily History</h2>
+<img src="/server/{{.Server.ID}}/daily" alt="Unable to show a pretty graph">
+<h2>Weekly History</h2>
+<img src="/server/{{.Server.ID}}/weekly" alt="Unable to show a pretty graph">
+<h2>Average per day</h2>
+<img src="/server/{{.Server.ID}}/average" alt="Unable to show a pretty graph">
 {{end}}
 `,
 }

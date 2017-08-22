@@ -36,6 +36,7 @@ type App struct {
 	store     Storage
 	templates map[string]*template.Template
 	news      []*rss.Item
+	hub       ServerEntry // TODO: probably needs to be protected with a lock
 }
 
 func New(c Conf) (*App, error) {
@@ -174,7 +175,7 @@ func (a *App) makeHubEntry(t time.Time, servers []ServerEntry) ServerEntry {
 		totalPlayers += s.Players
 	}
 
-	return ServerEntry{
+	a.hub = ServerEntry{
 		ID:      makeID(internalServerTitle),
 		Title:   internalServerTitle,
 		SiteURL: "",
@@ -182,4 +183,5 @@ func (a *App) makeHubEntry(t time.Time, servers []ServerEntry) ServerEntry {
 		Time:    t,
 		Players: totalPlayers,
 	}
+	return a.hub
 }
