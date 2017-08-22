@@ -4,7 +4,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/SlyMarbo/rss"
@@ -156,28 +155,17 @@ func (a *App) updateOldServers(t time.Time) error {
 	}
 
 	if len(remove) > 0 {
-		a.Log("Removing servers: %s", serverNameList(remove)) // TODO: remove after testing?
 		if err := a.store.RemoveServers(remove); err != nil {
 			return err
 		}
 	}
 
 	if len(update) > 0 {
-		a.Log("Old servers: %s", serverNameList(update)) // TODO: remove after testing?
 		if err := a.updateHistory(t, update); err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-// TODO: can probably remove this func after we're done testing
-func serverNameList(servers []ServerEntry) string {
-	var names []string
-	for _, s := range servers {
-		names = append(names, s.Title)
-	}
-	return strings.Join(names, ", ")
 }
 
 func (a *App) makeHubEntry(t time.Time, servers []ServerEntry) ServerEntry {
