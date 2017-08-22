@@ -71,13 +71,13 @@ func (a *App) pageDailyChart(w http.ResponseWriter, r *http.Request, vars handle
 		}
 	}
 
-	c := makeHistoryChart("Daily history", points)
+	c := makeHistoryChart("Daily history", true, points)
 	return a.renderChart(w, c)
 }
 
 func (a *App) pageWeeklyChart(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
 	id := vars["id"]
-	points, err := a.store.GetSingleServerHistory(id, 7)
+	points, err := a.store.GetSingleServerHistory(id, 6)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (a *App) pageWeeklyChart(w http.ResponseWriter, r *http.Request, vars handl
 		}
 	}
 
-	c := makeHistoryChart("Weekly history", points)
+	c := makeHistoryChart("Weekly history", false, points)
 	return a.renderChart(w, c)
 }
 

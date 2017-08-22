@@ -10,6 +10,16 @@ import (
 	chart "github.com/wcharczuk/go-chart"
 )
 
+var weekDaysOrder = []time.Weekday{
+	time.Monday,
+	time.Tuesday,
+	time.Wednesday,
+	time.Thursday,
+	time.Friday,
+	time.Saturday,
+	time.Sunday,
+}
+
 type renderableChart interface {
 	Render(chart.RendererProvider, io.Writer) error
 }
@@ -39,7 +49,7 @@ func (a *App) renderChart(w http.ResponseWriter, c renderableChart) error {
 	return nil
 }
 
-func makeHistoryChart(title string, points []ServerPoint) chart.Chart {
+func makeHistoryChart(title string, showLegend bool, points []ServerPoint) chart.Chart {
 	// TODO BUG: one day is missing randomly (usually the 3rd day in the range) in the chart
 	var xVals []time.Time
 	var yVals []float64
@@ -53,7 +63,7 @@ func makeHistoryChart(title string, points []ServerPoint) chart.Chart {
 		XValues: xVals,
 		YValues: yVals,
 	}
-	li := &chart.LinearRegressionSeries{
+	lr := &chart.LinearRegressionSeries{
 		Name:        "Linear regression",
 		InnerSeries: series,
 	}
@@ -63,34 +73,35 @@ func makeHistoryChart(title string, points []ServerPoint) chart.Chart {
 	}
 
 	c := chart.Chart{
-		Title: title,
-		TitleStyle: chart.Style{
-			Show: true,
-		},
 		Background: chart.Style{
 			Padding: chart.Box{
-				Left: 120,
+				Top: 40,
 			},
 		},
 		XAxis: chart.XAxis{
-			Style: chart.Style{
-				Show: true,
+			Style: chart.StyleShow(),
+			ValueFormatter: func(v interface{}) string {
+				t := int64(v.(float64))
+				return time.Unix(0, t).Format("Jan 02 15:04")
 			},
 		},
 		YAxis: chart.YAxis{
-			Style: chart.Style{
-				Show: true,
+			Style: chart.StyleShow(),
+			ValueFormatter: func(v interface{}) string {
+				return fmt.Sprintf("%.0f", v)
 			},
 		},
 		Series: []chart.Series{
 			series,
-			li,
+			lr,
 			sma,
 		},
 	}
-	// Add a legend
-	c.Elements = []chart.Renderable{
-		chart.LegendLeft(&c),
+	if showLegend {
+		// Add a legend
+		c.Elements = []chart.Renderable{
+			chart.LegendThin(&c),
+		}
 	}
 	return c
 }
@@ -113,53 +124,27 @@ func makeDayAverageChart(title string, points []ServerPoint) chart.BarChart {
 		avgDays[day] = float64(avg)
 	}
 
-	prettyName := func(d time.Weekday) string {
-		return fmt.Sprintf("%s (%.0f)", d, avgDays[d])
+	var bars []chart.Value
+	for _, d := range weekDaysOrder {
+		bars = append(bars, chart.Value{
+			Label: fmt.Sprintf("%s (%.0f)", d, avgDays[d]),
+			Value: avgDays[d],
+			Style: chart.Style{
+				StrokeColor: chart.ColorBlue,
+				FillColor:   chart.ColorBlue,
+			},
+		})
 	}
 
 	return chart.BarChart{
-		Title: title,
-		TitleStyle: chart.Style{
-			Show: true,
-		},
-		BarWidth: 60,
-		XAxis: chart.Style{
-			Show: true,
-		},
+		BarWidth: 50,
+		XAxis:    chart.StyleShow(),
 		YAxis: chart.YAxis{
-			Style: chart.Style{
-				Show: true,
+			Style: chart.StyleShow(),
+			ValueFormatter: func(v interface{}) string {
+				return fmt.Sprintf("%.0f", v)
 			},
 		},
-		Bars: []chart.Value{
-			chart.Value{
-				Label: prettyName(time.Monday),
-				Value: avgDays[time.Monday],
-			},
-			chart.Value{
-				Label: prettyName(time.Tuesday),
-				Value: avgDays[time.Tuesday],
-			},
-			chart.Value{
-				Label: prettyName(time.Wednesday),
-				Value: avgDays[time.Wednesday],
-			},
-			chart.Value{
-				Label: prettyName(time.Thursday),
-				Value: avgDays[time.Thursday],
-			},
-			chart.Value{
-				Label: prettyName(time.Friday),
-				Value: avgDays[time.Friday],
-			},
-			chart.Value{
-				Label: prettyName(time.Saturday),
-				Value: avgDays[time.Saturday],
-			},
-			chart.Value{
-				Label: prettyName(time.Sunday),
-				Value: avgDays[time.Sunday],
-			},
-		},
+		Bars: bars,
 	}
 }
