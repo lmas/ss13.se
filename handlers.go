@@ -71,7 +71,7 @@ func (a *App) pageDailyChart(w http.ResponseWriter, r *http.Request, vars handle
 		}
 	}
 
-	c := makeHistoryChart(true, points)
+	c := makeHistoryChart(points, true)
 	return a.renderChart(w, c)
 }
 
@@ -88,7 +88,7 @@ func (a *App) pageWeeklyChart(w http.ResponseWriter, r *http.Request, vars handl
 		}
 	}
 
-	c := makeHistoryChart(false, points)
+	c := makeHistoryChart(points, false)
 	return a.renderChart(w, c)
 }
 

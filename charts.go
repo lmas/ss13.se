@@ -49,7 +49,7 @@ func (a *App) renderChart(w http.ResponseWriter, c renderableChart) error {
 	return nil
 }
 
-func makeHistoryChart(showLegend bool, points []ServerPoint) chart.Chart {
+func makeHistoryChart(points []ServerPoint, showLegend bool) chart.Chart {
 	// TODO BUG: one day is missing randomly (usually the 3rd day in the range) in the chart
 	var xVals []time.Time
 	var yVals []float64
@@ -98,7 +98,6 @@ func makeHistoryChart(showLegend bool, points []ServerPoint) chart.Chart {
 		},
 	}
 	if showLegend {
-		// Add a legend
 		c.Elements = []chart.Renderable{
 			chart.LegendThin(&c),
 		}
