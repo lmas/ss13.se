@@ -20,7 +20,7 @@ func main() {
 		WebAddr:       *flagAddr,
 		ReadTimeout:   30 * time.Second,
 		WriteTimeout:  30 * time.Second,
-		ScrapeTimeout: 10 * time.Minute,
+		ScrapeTimeout: 15 * time.Minute,
 		Storage: &ss13_se.StorageSqlite{
 			Path: *flagPath,
 		},

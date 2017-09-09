@@ -49,7 +49,7 @@ func (a *App) renderChart(w http.ResponseWriter, c renderableChart) error {
 	return nil
 }
 
-func makeHistoryChart(title string, showLegend bool, points []ServerPoint) chart.Chart {
+func makeHistoryChart(showLegend bool, points []ServerPoint) chart.Chart {
 	// TODO BUG: one day is missing randomly (usually the 3rd day in the range) in the chart
 	var xVals []time.Time
 	var yVals []float64
@@ -107,7 +107,7 @@ func makeHistoryChart(title string, showLegend bool, points []ServerPoint) chart
 }
 
 // NOTE: The chart won't be renderable unless we've got at least two days of history
-func makeDayAverageChart(title string, points []ServerPoint) chart.BarChart {
+func makeDayAverageChart(points []ServerPoint) chart.BarChart {
 	days := make(map[time.Weekday][]int)
 	for _, p := range points {
 		day := p.Time.Weekday()
