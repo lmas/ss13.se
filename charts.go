@@ -106,29 +106,22 @@ func makeHistoryChart(showLegend bool, points []ServerPoint) chart.Chart {
 	return c
 }
 
-// NOTE: The chart won't be renderable unless we've got at least two days of history
-func makeDayAverageChart(points []ServerPoint) chart.BarChart {
-	days := make(map[time.Weekday][]int)
-	for _, p := range points {
-		day := p.Time.Weekday()
-		days[day] = append(days[day], p.Players)
-	}
-
-	avgDays := make(map[time.Weekday]float64)
-	for day, vals := range days {
+// NOTE: The chart won't be renderable unless we've got at least two days/hours of history
+func makeAverageChart(values map[int][]int, fnFormat func(int, float64) string) chart.BarChart {
+	avg := make(map[int]float64)
+	for i, vl := range values {
 		sum := 0
-		for _, v := range vals {
+		for _, v := range vl {
 			sum += v
 		}
-		avg := sum / len(vals)
-		avgDays[day] = float64(avg)
+		avg[i] = float64(sum / len(vl))
 	}
 
 	var bars []chart.Value
-	for _, d := range weekDaysOrder {
+	for i := 0; i < len(avg); i++ {
 		bars = append(bars, chart.Value{
-			Label: fmt.Sprintf("%s (%.0f)", d, avgDays[d]),
-			Value: avgDays[d],
+			Label: fnFormat(i, avg[i]),
+			Value: avg[i],
 			Style: chart.Style{
 				StrokeColor: chart.ColorBlue,
 				FillColor:   chart.ColorBlue,
@@ -136,11 +129,20 @@ func makeDayAverageChart(points []ServerPoint) chart.BarChart {
 		})
 	}
 
+	barW, barS := 50, 100
+	if len(avg) > 7 {
+		barW, barS = 20, 20
+	}
+	s := chart.Style{
+		Show:        true,
+		StrokeWidth: 1,
+	}
 	return chart.BarChart{
-		BarWidth: 50,
-		XAxis:    chart.StyleShow(),
+		BarWidth:   barW,
+		BarSpacing: barS,
+		XAxis:      s,
 		YAxis: chart.YAxis{
-			Style: chart.StyleShow(),
+			Style: s,
 			ValueFormatter: func(v interface{}) string {
 				return fmt.Sprintf("%.0f", v)
 			},

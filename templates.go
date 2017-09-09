@@ -185,7 +185,9 @@ var tmplList = map[string]string{
 <h2>Weekly History</h2>
 <img src="/server/{{.Server.ID}}/weekly" alt="Unable to show a pretty graph">
 <h2>Average per day</h2>
-<img src="/server/{{.Server.ID}}/average" alt="Unable to show a pretty graph">
+<img src="/server/{{.Server.ID}}/averagedaily" alt="Unable to show a pretty graph">
+<h2>Average per hour</h2>
+<img src="/server/{{.Server.ID}}/averagehourly" alt="Unable to show a pretty graph">
 {{end}}
 `,
 }

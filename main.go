@@ -64,7 +64,8 @@ func New(c Conf) (*App, error) {
 	r.Handle("/server/{id}", handler(a.pageServer))
 	r.Handle("/server/{id}/daily", handler(a.pageDailyChart))
 	r.Handle("/server/{id}/weekly", handler(a.pageWeeklyChart))
-	r.Handle("/server/{id}/average", handler(a.pageAverageChart))
+	r.Handle("/server/{id}/averagedaily", handler(a.pageAverageDailyChart))
+	r.Handle("/server/{id}/averagehourly", handler(a.pageAverageHourlyChart))
 	a.web.Handler = r
 
 	return a, nil

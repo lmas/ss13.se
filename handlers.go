@@ -3,6 +3,7 @@ package ss13_se
 import (
 	"fmt"
 	"net/http"
+	"time"
 )
 
 func (a *App) pageIndex(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
@@ -91,7 +92,7 @@ func (a *App) pageWeeklyChart(w http.ResponseWriter, r *http.Request, vars handl
 	return a.renderChart(w, c)
 }
 
-func (a *App) pageAverageChart(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
+func (a *App) pageAverageDailyChart(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
 	id := vars["id"]
 	points, err := a.store.GetSingleServerHistory(id, 30)
 	if err != nil {
@@ -104,6 +105,40 @@ func (a *App) pageAverageChart(w http.ResponseWriter, r *http.Request, vars hand
 		}
 	}
 
-	c := makeDayAverageChart(points)
+	days := make(map[int][]int)
+	for _, p := range points {
+		d := int(p.Time.Weekday())
+		days[d] = append(days[d], p.Players)
+	}
+	formatter := func(i int, f float64) string {
+		d := time.Weekday(i)
+		return fmt.Sprintf("%s", d)
+	}
+	c := makeAverageChart(days, formatter)
+	return a.renderChart(w, c)
+}
+
+func (a *App) pageAverageHourlyChart(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
+	id := vars["id"]
+	points, err := a.store.GetSingleServerHistory(id, 30)
+	if err != nil {
+		return err
+	}
+	if len(points) < 1 {
+		return HttpError{
+			Status: 404,
+			Err:    fmt.Errorf("server not found"),
+		}
+	}
+
+	hours := make(map[int][]int)
+	for _, p := range points {
+		h := p.Time.Hour()
+		hours[h] = append(hours[h], p.Players)
+	}
+	formatter := func(i int, f float64) string {
+		return fmt.Sprintf("%02d:00", i)
+	}
+	c := makeAverageChart(hours, formatter)
 	return a.renderChart(w, c)
 }
