@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"time"
 
 	chart "github.com/wcharczuk/go-chart"
@@ -106,7 +107,8 @@ func makeHistoryChart(points []ServerPoint, showLegend bool) chart.Chart {
 }
 
 // NOTE: The chart won't be renderable unless we've got at least two days/hours of history
-func makeAverageChart(values map[int][]int, fnFormat func(int, float64) string) chart.BarChart {
+func makeAverageChart(values map[int][]int, fnFormat func(int, float64) string, fnSort func([]int) []int) chart.BarChart {
+	var keys []int
 	avg := make(map[int]float64)
 	for i, vl := range values {
 		sum := 0
@@ -114,13 +116,14 @@ func makeAverageChart(values map[int][]int, fnFormat func(int, float64) string) 
 			sum += v
 		}
 		avg[i] = float64(sum / len(vl))
+		keys = append(keys, i)
 	}
 
 	var bars []chart.Value
-	for i := 0; i < len(avg); i++ {
+	for _, k := range fnSort(keys) {
 		bars = append(bars, chart.Value{
-			Label: fnFormat(i, avg[i]),
-			Value: avg[i],
+			Label: fnFormat(k, avg[k]),
+			Value: avg[k],
 			Style: chart.Style{
 				StrokeColor: chart.ColorBlue,
 				FillColor:   chart.ColorBlue,
@@ -148,4 +151,57 @@ func makeAverageChart(values map[int][]int, fnFormat func(int, float64) string) 
 		},
 		Bars: bars,
 	}
+}
+
+// Shortcut/helper func for the calling handler
+func avgDailyChart(points []ServerPoint) chart.BarChart {
+	days := make(map[int][]int)
+	for _, p := range points {
+		d := int(p.Time.Weekday())
+		days[d] = append(days[d], p.Players)
+	}
+	now := time.Now()
+	formatter := func(i int, f float64) string {
+		d := time.Weekday(i)
+		extra := ""
+		if d == now.Weekday() {
+			extra = "*"
+		}
+		return fmt.Sprintf("%s%s", d, extra)
+	}
+	sorter := func(keys []int) []int {
+		sort.Slice(keys, func(i, j int) bool {
+			return keys[i] < keys[j]
+		})
+		// Fucking wankers and their fucking sundays
+		if keys[0] == int(time.Sunday) {
+			keys = append(keys[1:], int(time.Sunday))
+		}
+		return keys
+	}
+	return makeAverageChart(days, formatter, sorter)
+}
+
+// Shortcut/helper func for the calling handler
+func avgHourlyChart(points []ServerPoint) chart.BarChart {
+	hours := make(map[int][]int)
+	for _, p := range points {
+		h := p.Time.Hour()
+		hours[h] = append(hours[h], p.Players)
+	}
+	now := time.Now()
+	formatter := func(i int, f float64) string {
+		extra := ""
+		if i == now.Hour() {
+			extra = "*"
+		}
+		return fmt.Sprintf("%02d%s", i, extra)
+	}
+	sorter := func(keys []int) []int {
+		sort.Slice(keys, func(i, j int) bool {
+			return keys[i] < keys[j]
+		})
+		return keys
+	}
+	return makeAverageChart(hours, formatter, sorter)
 }

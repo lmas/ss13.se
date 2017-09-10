@@ -3,7 +3,6 @@ package ss13_se
 import (
 	"fmt"
 	"net/http"
-	"time"
 )
 
 func (a *App) pageIndex(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
@@ -105,16 +104,7 @@ func (a *App) pageAverageDailyChart(w http.ResponseWriter, r *http.Request, vars
 		}
 	}
 
-	days := make(map[int][]int)
-	for _, p := range points {
-		d := int(p.Time.Weekday())
-		days[d] = append(days[d], p.Players)
-	}
-	formatter := func(i int, f float64) string {
-		d := time.Weekday(i)
-		return fmt.Sprintf("%s", d)
-	}
-	c := makeAverageChart(days, formatter)
+	c := avgDailyChart(points)
 	return a.renderChart(w, c)
 }
 
@@ -131,14 +121,6 @@ func (a *App) pageAverageHourlyChart(w http.ResponseWriter, r *http.Request, var
 		}
 	}
 
-	hours := make(map[int][]int)
-	for _, p := range points {
-		h := p.Time.Hour()
-		hours[h] = append(hours[h], p.Players)
-	}
-	formatter := func(i int, f float64) string {
-		return fmt.Sprintf("%02d:00", i)
-	}
-	c := makeAverageChart(hours, formatter)
+	c := avgHourlyChart(points)
 	return a.renderChart(w, c)
 }
