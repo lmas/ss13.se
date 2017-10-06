@@ -116,13 +116,15 @@ func parseEntry(s *goquery.Selection) (ServerEntry, error) {
 	// 2 == because the regexp returns wholestring + matched part
 	// If it's less than 2 we couldn't find a match and if it's greater
 	// than 2 there's multiple matches, which is fishy...
-	players := 0
-	if len(r) == 2 {
-		p, err := strconv.Atoi(r[1])
-		if err != nil {
-			return ServerEntry{}, err
-		}
-		players = p
+	if len(r) != 2 {
+		return ServerEntry{}, nil
+	}
+
+	players, err := strconv.Atoi(r[1])
+	// Also ignore empty servers (they'll get updated with 0 players/history
+	// anyway, in a later stage)
+	if err != nil || players < 1 {
+		return ServerEntry{}, err
 	}
 
 	// Grab and sanitize the server's name
