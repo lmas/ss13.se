@@ -163,6 +163,9 @@ func (a *App) updateOldServers(t time.Time) error {
 	}
 
 	if len(update) > 0 {
+		if err := a.store.SaveServers(update); err != nil {
+			return err
+		}
 		if err := a.updateHistory(t, update); err != nil {
 			return err
 		}
