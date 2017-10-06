@@ -56,7 +56,10 @@ const tmplBase string = `<!DOCTYPE html>
 		}
 		a, a:hover, a:visited {
 			color: #444;
-			text-decoration: underline;
+			text-decoration: none;
+		}
+		a:hover {
+			color: #000;
 		}
                 img {
 			display: block;
