@@ -14,7 +14,8 @@ const (
 	// Used internally for logging a global # of players
 	internalServerTitle string = "_ss13.se"
 
-	oldServerTimeout = 24 * 7 // in hours
+	// How old a server entry can get, without updates, before it get's deleted
+	oldServerTimeout = 24 * 3 // in hours
 )
 
 type Conf struct {
