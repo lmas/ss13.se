@@ -11,6 +11,16 @@ import (
 	chart "github.com/wcharczuk/go-chart"
 )
 
+// TODO BUG:
+// - gonna have to fix the funky Y range ticks:
+//   High pop servers will have Y ranges between min/max values while
+//   low pop servers will show multiple ticks with same values (like 3,3,3,2,2,1,1,1,0)
+//   Needs to be standardized (from 0 to max, with sane increments in between).
+//
+// - Top of bars in barcharts doesn't align well to the Y range ticks
+//
+// - I'm also sure I fixed the bug with one day missing randomly from the charts..
+
 var weekDaysOrder = []time.Weekday{
 	time.Monday,
 	time.Tuesday,
@@ -51,7 +61,6 @@ func (a *App) renderChart(w http.ResponseWriter, c renderableChart) error {
 }
 
 func makeHistoryChart(points []ServerPoint, showLegend bool) chart.Chart {
-	// TODO BUG: one day is missing randomly (usually the 3rd day in the range) in the chart
 	var xVals []time.Time
 	var yVals []float64
 	for _, p := range points {
