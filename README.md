@@ -1,34 +1,58 @@
-Space Station 13 Hub
+[Space Station 13 Hub](https://www.ss13.se/)
 ================================================================================
 
-http://www.ss13.se/
-
 A server hub dedicated to SS13 and possibly a better replacement for the default
-server page at [Byond](http://www.byond.com/games/exadv1/spacestation13).
+server page at [Byond](https://www.byond.com/games/exadv1/spacestation13).
 
 Status
 --------------------------------------------------------------------------------
-The site is currently being rewritten into Go.
 
+***Beta mode live at [www.ss13.se](https://www.ss13.se/)***
 
-Features
+The code has ben run in production for some months now and seems to be stable
+enough. I guess we're now back in beta?
+
+Features For Players
 --------------------------------------------------------------------------------
 
-- A friendlier server list, which is also sortable.
+- A friendlier server list.
 
-- Dedicated pages for each public server, with more detailed info.
-
-- Pages for private servers too, upon request.
+- Detailed pages for most public servers.
 
 - Player count stats and graphs.
 
+- Predict when it's a "good" time for you to play.
+
+Data Source
+--------------------------------------------------------------------------------
+
+The data used for the **public** servers is scraped from the [Byond](http://www.byond.com/games/exadv1/spacestation13) page.
+Relying on Byond means we're affected by their server downtime (no page, no data),
+but we will automatically discover any new public servers.
+
+Since bad hosts and owners can spoof a server's reported player count, there's
+no way to guarantee that the calculated stats and graphs are 100% correct.
+
+But then again it's just some silly numbers for a game.
+
+Missing a server?
+--------------------------------------------------------------------------------
+
+Since we're scraping only **public** servers, we're missing any **private** that's
+hidden from the Byond page (I also discarded the poller, so no more polling
+**private** servers from a VIP list).
+
+We also see a lot of **public** servers coming and going, or merely changing
+names a lot. So any servers that hasn't been seen for 3 days, or more, will be
+automagically removed from the list.
+
 License
 --------------------------------------------------------------------------------
+
 MIT License, see the LICENSE file.
 
 Credits
 --------------------------------------------------------------------------------
-- A. Svensson - Author and host.
 
 - [stuicey](https://www.reddit.com/user/stuicey) - Thanks for original idea and [first work](https://www.reddit.com/r/SS13/comments/2p6znr/hub_population_data/).
 
@@ -39,41 +63,14 @@ Credits
 Todo
 --------------------------------------------------------------------------------
 
-**Bugs**
+- Missing tests.
 
-- server_details.html: make the graph tooltip more awesome
+- Missign the favicon.
 
-- server_details.html: use same format for the verbose timestamps
+- Add about page (redirect to github).
 
-- better colors for warn/offline servers
+- Add graph showing next week's predicted player count for all servers?
 
-**New features**
+- Investigate more options for prediction.
 
-- page to send in requests to add new private servers?
-
-- clarify time period for graphs
-
-- show note about data source for each server (byond, server poll)
-
-- summary page showing total stats for all servers:
-    - # online/warn/offline servers
-    - total/average # of online players
-    - log of recently added/removed servers
-    - the # of data points since start
-    - age of oldest data point
-    - time since since latest update
-    - time to run update
-
-- more pop. history graphs, for current day/week/month
-
-- player growth rate for each server?
-
-- count page visits and show graphs?
-
-- frontpage of some sort
-
-- about page and move notices about byond etc. to that page
-
-
-- logo?
-
+- Investigate community approval of tracking public members (visited servers, play time, predictions)?

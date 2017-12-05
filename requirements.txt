@@ -1,8 +1,0 @@
-
-django
-django-debug-toolbar
-requests
-beautifulsoup4
-gunicorn
-fabric
-pytz
