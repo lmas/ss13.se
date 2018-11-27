@@ -63,14 +63,11 @@ Credits
 Todo
 --------------------------------------------------------------------------------
 
+- Refactor the hub scrapping to instead use http://www.byond.com/games/Exadv1/SpaceStation13?format=text
+
 - Missing tests.
 
 - Missign the favicon.
 
-- Add about page (redirect to github).
-
-- Add graph showing next week's predicted player count for all servers?
-
 - Investigate more options for prediction.
 
-- Investigate community approval of tracking public members (visited servers, play time, predictions)?
