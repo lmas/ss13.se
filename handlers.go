@@ -29,6 +29,11 @@ func (a *App) pageIndex(w http.ResponseWriter, r *http.Request, vars handlerVars
 	})
 }
 
+func (a *App) pageStyle(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
+	w.Header().Set("Content-Type", "text/css")
+	return a.templates["style"].Execute(w, nil)
+}
+
 func (a *App) pageNews(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
 	return a.templates["news"].Execute(w, map[string]interface{}{
 		"Reddit": a.news,

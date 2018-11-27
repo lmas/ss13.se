@@ -34,76 +34,10 @@ const tmplBase string = `<!DOCTYPE html>
 <html>
         <head>
                 <meta charset="utf-8">
+		<link rel="stylesheet" href="/static/style.css" type="text/css">
                 <title>
                         {{block "title" .}}NO TITLE{{end}} | ss13.se
                 </title>
-                <style type="text/css">
-                html, body, p, h1, h2, img, ul, li, table {
-			padding: 0px;
-			margin: 0px;
-		}
-		body {
-			margin: 0px auto;
-			max-width: 1024px;
-			font-size: 18px;
-			padding: 0 10px;
-			line-height: 1.6;
-			color: #444;
-			background-color: #fff;
-		}
-                h1, h2 {
-			text-align: center;
-		}
-		a, a:hover, a:visited {
-			color: #444;
-			text-decoration: none;
-		}
-		a:hover {
-			color: #000;
-		}
-                img {
-			display: block;
-			margin: auto;
-		}
-		header {
-			margin-bottom: 40px;
-			padding: 10px 20px;
-			color: #fff;
-			background-color: #444;
-			border-bottom-left-radius: 5px;
-			border-bottom-right-radius: 5px;
-		}
-		header a, header a:hover, header a:visited {
-			color: #fff;
-			text-decoration: none;
-			display: inline;
-			padding-right: 40px;
-		}
-                footer {
-			margin-top: 40px;
-			padding: 10px;
-			text-align: center;
-		}
-		.button a {
-			background-color: #444;
-			color: #fff;
-			border-radius: 5px;
-			padding: 5px 10px;
-			text-decoration: none;
-		}
-		.button a:hover {
-			background-color: #888;
-		}
-		.left {
-			float: left;
-		}
-		.right {
-			float: right;
-		}
-		.hide td, .hide a {
-			color: #bbb;
-		}
-                </style>
         </head>
         <body>
                 <header>
@@ -137,6 +71,73 @@ const tmplBase string = `<!DOCTYPE html>
 </html>`
 
 var tmplList = map[string]string{
+	"style": `
+* {
+	padding: 0px;
+	margin: 0px;
+}
+body {
+	margin: 0px auto;
+	max-width: 1024px;
+	font-size: 18px;
+	padding: 0 10px;
+	line-height: 1.6;
+	color: #444;
+	background-color: #fff;
+}
+h1, h2 {
+	text-align: center;
+}
+a, a:hover, a:visited {
+	color: #444;
+	text-decoration: none;
+}
+a:hover {
+	color: #000;
+}
+img {
+	display: block;
+	margin: auto;
+}
+header {
+	margin-bottom: 40px;
+	padding: 10px 20px;
+	color: #fff;
+	background-color: #444;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+header a, header a:hover, header a:visited {
+	color: #fff;
+	text-decoration: none;
+	display: inline;
+	padding-right: 40px;
+}
+footer {
+	margin-top: 40px;
+	padding: 10px;
+	text-align: center;
+}
+.button a {
+	background-color: #444;
+	color: #fff;
+	border-radius: 5px;
+	padding: 5px 10px;
+	text-decoration: none;
+}
+.button a:hover {
+	background-color: #888;
+}
+.left {
+	float: left;
+}
+.right {
+	float: right;
+}
+.hide td, .hide a {
+	color: #bbb;
+}
+`,
 	"index": `{{define "title"}}Index{{end}}
 {{define "body"}}
 <h1>Servers</h1>

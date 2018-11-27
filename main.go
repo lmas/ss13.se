@@ -61,6 +61,7 @@ func New(c Conf) (*App, error) {
 
 	r := mux.NewRouter()
 	r.Handle("/", handler(a.pageIndex))
+	r.Handle("/static/style.css", handler(a.pageStyle))
 	r.Handle("/news", handler(a.pageNews))
 	r.Handle("/server/{id}", handler(a.pageServer))
 	r.Handle("/server/{id}/daily", handler(a.pageDailyChart))
