@@ -52,20 +52,7 @@ const tmplBase string = `<!DOCTYPE html>
                 </section>
 
                 <footer>
-			<p>
-				<span class="left">
-					Source code at
-					<a href="https://github.com/lmas/ss13_se">Github</a>
-				</span>
-
-				{{/* TODO: not sure about the copyright stuff when fetching ext. data */}}
-				Copyright © 2017 A. Svensson
-
-				<span class="right">
-					Raw data from
-					<a href="http://www.byond.com/games/exadv1/spacestation13">Byond</a>
-				</span>
-			</p>
+			<a href="https://github.com/lmas/ss13_se">Source</a>
                 </footer>
         </body>
 </html>`
@@ -117,6 +104,7 @@ footer {
 	margin-top: 40px;
 	padding: 10px;
 	text-align: center;
+	font-size: 12px;
 }
 .button a {
 	background-color: #444;
