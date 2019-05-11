@@ -43,7 +43,6 @@ const tmplBase string = `<!DOCTYPE html>
                 <header>
 			<a href="/">ss13.se</a>
 			<a href="/server/{{.Hub.ID}}">Global stats</a>
-			<a href="/news">Latest news</a>
 			<p class="right">Last updated: {{.Hub.LastUpdated}}</p>
                 </header>
 
@@ -146,15 +145,6 @@ footer {
 	{{end}}
 	</tbody>
 </table>
-{{end}}
-`,
-
-	"news": `{{define "title"}}News{{end}}
-{{define "body"}}
-<h1>Latest mentions on reddit</h1>
-<ul>{{range .Reddit}}
-	<li><a href="{{.Link}}">{{.Title}}</a></li>
-{{end}}</ul>
 {{end}}
 `,
 

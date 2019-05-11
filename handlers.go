@@ -34,13 +34,6 @@ func (a *App) pageStyle(w http.ResponseWriter, r *http.Request, vars handlerVars
 	return a.templates["style"].Execute(w, nil)
 }
 
-func (a *App) pageNews(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
-	return a.templates["news"].Execute(w, map[string]interface{}{
-		"Reddit": a.news,
-		"Hub":    a.hub,
-	})
-}
-
 func (a *App) pageServer(w http.ResponseWriter, r *http.Request, vars handlerVars) error {
 	id := vars["id"]
 	server, err := a.store.GetServer(id)

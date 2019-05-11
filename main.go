@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/SlyMarbo/rss"
 	"github.com/gorilla/mux"
 )
 
@@ -36,7 +35,6 @@ type App struct {
 	web       *http.Server
 	store     Storage
 	templates map[string]*template.Template
-	news      []*rss.Item
 	hub       ServerEntry // TODO: probably needs to be protected with a lock
 }
 
@@ -62,7 +60,6 @@ func New(c Conf) (*App, error) {
 	r := mux.NewRouter()
 	r.Handle("/", handler(a.pageIndex))
 	r.Handle("/static/style.css", handler(a.pageStyle))
-	r.Handle("/news", handler(a.pageNews))
 	r.Handle("/server/{id}", handler(a.pageServer))
 	r.Handle("/server/{id}/daily", handler(a.pageDailyChart))
 	r.Handle("/server/{id}/weekly", handler(a.pageWeeklyChart))
@@ -90,9 +87,6 @@ func (a *App) Run() error {
 
 	a.Log("Running updater")
 	go a.runUpdater(webClient)
-
-	a.Log("Running reddit watcher")
-	go a.runRedditWatcher(webClient)
 
 	a.Log("Running server on %s", a.conf.WebAddr)
 	return a.web.ListenAndServe()
