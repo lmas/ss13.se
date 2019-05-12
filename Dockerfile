@@ -4,9 +4,7 @@ FROM golang:${GO_VERSION}-alpine AS builder
 
 RUN apk add --no-cache ca-certificates git gcc libc-dev && \
         mkdir -p /build/etc/ssl/certs && \
-        cp /etc/ssl/certs/ca-certificates.crt /build/etc/ssl/certs/ && \
-        echo 'app:x:2000:2000::/:' > /build/etc/passwd && \
-        echo 'app:x:2000:' > /build/etc/group 
+        cp /etc/ssl/certs/ca-certificates.crt /build/etc/ssl/certs/
 
 WORKDIR /src
 COPY . .
@@ -20,9 +18,9 @@ RUN go build -o /build/app cmd/server/server.go
 FROM alpine:3.9 AS final
 #FROM scratch AS final
 
-COPY --from=builder --chown=2000:2000 /build /
+COPY --from=builder --chown=2004:2004 /build /
 
-USER 2000:2000
+USER 2004:2004
 ENV HOME /data
 WORKDIR $HOME
 VOLUME $HOME
