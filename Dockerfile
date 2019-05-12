@@ -18,9 +18,8 @@ RUN go build -o /build/app cmd/server/server.go
 FROM alpine:3.9 AS final
 #FROM scratch AS final
 
-COPY --from=builder --chown=2004:2004 /build /
+COPY --from=builder /build /
 
-USER 2004:2004
 ENV HOME /data
 WORKDIR $HOME
 VOLUME $HOME
